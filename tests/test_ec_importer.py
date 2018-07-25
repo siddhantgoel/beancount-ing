@@ -23,7 +23,7 @@ class ECImporterTestCase(TestCase):
 
         self.iban = 'DE99999999999999999999'
         self.formatted_iban = 'DE99 9999 9999 9999 9999 99'
-        self.user = 'Regina Phalange'
+        self.user = 'Max Mustermann'
         self.filename = path_for_temp_file('{}.csv'.format(self.iban))
 
     def tearDown(self):
