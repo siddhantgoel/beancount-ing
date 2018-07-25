@@ -1,7 +1,6 @@
 from contextlib import contextmanager
 import csv
 from datetime import datetime
-from enum import Enum
 import locale
 import re
 
