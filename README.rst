@@ -1,8 +1,8 @@
-Beancount ING-Diba Importer
+Beancount ING-DiBa Importer
 ===========================
 
 :code:`beancount-ing-diba` provides an Importer for converting CSV exports of
-ING-Diba_ account summaries to the Beancount_ format.
+`ING-DiBa`_ account summaries to the Beancount_ format.
 
-.. ING-Diba: https://www.ing-diba.de/
-.. Beancount: http://furius.ca/beancount/
+.. _ING-DiBa: https://www.ing-diba.de/
+.. _Beancount: http://furius.ca/beancount/
