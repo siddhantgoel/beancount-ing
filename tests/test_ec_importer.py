@@ -1,7 +1,11 @@
+import datetime
+from decimal import Decimal
 from tempfile import gettempdir
 from textwrap import dedent
 from unittest import TestCase
 import os
+
+from beancount.core.data import Amount, Balance
 
 from beancount_ing_diba.ec import ECImporter, FIELDS
 
@@ -35,7 +39,7 @@ class ECImporterTestCase(TestCase):
             'iban': self.formatted_iban,
             'user': self.user,
         })
-        return dedent(string).format(**kwargs).lstrip().encode('utf-8')
+        return dedent(string).format(**kwargs).lstrip().encode('ISO-8859-1')
 
     def test_identify_correct(self):
         importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
@@ -110,3 +114,32 @@ class ECImporterTestCase(TestCase):
 
         with open(self.filename) as fd:
             self.assertFalse(importer.identify(fd))
+
+    def test_extract_no_transactions(self):
+        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+
+        with open(self.filename, 'wb') as fd:
+            fd.write(self._format_data('''
+                Umsatzanzeige;Datei erstellt am: 25.07.2018 12:00
+                ;Letztes Update: aktuell
+
+                IBAN;{formatted_iban}
+                Kontoname;Extra-Konto
+                Bank;ING-DiBa
+                Kunde;{user}
+                Zeitraum;01.06.2018 - 30.06.2018
+                Saldo;5.000,00;EUR
+
+                In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+
+                {header}
+            '''))  # NOQA
+
+        with open(self.filename) as fd:
+            transactions = importer.extract(fd)
+
+        self.assertEqual(len(transactions), 1)
+        self.assertTrue(isinstance(transactions[0], Balance))
+        self.assertEqual(transactions[0].date, datetime.date(2018, 6, 30))
+        self.assertEqual(transactions[0].amount,
+                         Amount(Decimal('5000.00'), currency='EUR'))

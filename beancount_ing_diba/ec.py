@@ -147,20 +147,20 @@ class ECImporter(importer.ImporterProtocol):
                                     quoting=csv.QUOTE_MINIMAL, quotechar='"')
 
                 for line in reader:
-                    key, value = line
+                    key, *values = line
                     line_index += 1
 
                     if key == 'IBAN':
-                        if value != self.iban:
+                        if _format_iban(values[0]) != self.iban:
                             raise InvalidFormatError()
                     elif key == 'Bank':
-                        if value != BANK:
+                        if values[0] != BANK:
                             raise InvalidFormatError()
                     elif key == 'Kunde':
-                        if value != self.user:
+                        if values[0] != self.user:
                             raise InvalidFormatError()
                     elif key == 'Zeitraum':
-                        splits = value.strip().split(' - ')
+                        splits = values[0].strip().split(' - ')
 
                         if len(splits) != 2:
                             raise InvalidFormatError()
@@ -170,7 +170,7 @@ class ECImporter(importer.ImporterProtocol):
                         self._date_to = datetime.strptime(
                             splits[1], '%d.%m.%Y').date()
                     elif key == 'Saldo':
-                        amount, currency = value.split(';')
+                        amount, currency = values
 
                         self._balance = Amount(locale.atof(amount, Decimal),
                                                currency)
