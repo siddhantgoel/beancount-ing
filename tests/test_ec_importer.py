@@ -36,7 +36,6 @@ class ECImporterTestCase(TestCase):
         kwargs.update({
             'formatted_iban': self.formatted_iban,
             'header': HEADER,
-            'iban': self.formatted_iban,
             'user': self.user,
         })
         return dedent(string).format(**kwargs).lstrip().encode('ISO-8859-1')
