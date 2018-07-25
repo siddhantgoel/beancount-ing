@@ -51,12 +51,11 @@ def _format_iban(iban):
 
 
 class ECImporter(importer.ImporterProtocol):
-    def __init__(self, iban, account, user, currency='EUR',
-                 numeric_locale='de_DE.UTF-8', file_encoding='ISO-8859-1'):
+    def __init__(self, iban, account, user, numeric_locale='de_DE.UTF-8',
+                 file_encoding='ISO-8859-1'):
         self.iban = _format_iban(iban)
         self.account = account
         self.user = user
-        self.currency = currency
         self.numeric_locale = numeric_locale
         self.file_encoding = file_encoding
 
@@ -171,9 +170,10 @@ class ECImporter(importer.ImporterProtocol):
                         self._date_to = datetime.strptime(
                             splits[1], '%d.%m.%Y').date()
                     elif key == 'Saldo':
-                        self._balance = Amount(
-                            locale.atof(value.rstrip(' EUR'), Decimal),
-                            self.currency)
+                        amount, currency = value.split(';')
+
+                        self._balance = Amount(locale.atof(amount, Decimal),
+                                               currency)
                         closing_balance_index = line_index
 
                 # Empty line
@@ -205,8 +205,10 @@ class ECImporter(importer.ImporterProtocol):
                 for line in reader:
                     meta = data.new_metadata(file_.name, line_index)
 
-                    amount = Amount(locale.atof(line['Saldo'], Decimal),
-                                    self.currency)
+                    currency = line['Währung']
+
+                    amount = Amount(locale.atof(line['Betrag'], Decimal),
+                                    currency)
                     date = datetime.strptime(
                         line['Buchung'], '%d.%m.%Y').date()
 
