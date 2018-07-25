@@ -205,35 +205,29 @@ class ECImporter(importer.ImporterProtocol):
                 for line in reader:
                     meta = data.new_metadata(file_.name, line_index)
 
-                    amount = Amount(locale.atof(line['Betrag (EUR)'], Decimal),
+                    amount = Amount(locale.atof(line['Saldo'], Decimal),
                                     self.currency)
                     date = datetime.strptime(
-                        line['Buchungstag'], '%d.%m.%Y').date()
+                        line['Buchung'], '%d.%m.%Y').date()
 
-                    if line['Verwendungszweck'] == 'Tagessaldo':
-                        entries.append(
-                            data.Balance(meta, date, self.account, amount,
-                                         None, None)
-                        )
-                    else:
-                        description = '{} {}'.format(
-                            line['Buchungstext'],
-                            line['Verwendungszweck']
-                        )
+                    description = '{} {}'.format(
+                        line['Buchungstext'],
+                        line['Verwendungszweck']
+                    )
 
-                        postings = [
-                            data.Posting(self.account, amount, None, None,
-                                         None, None)
-                        ]
+                    postings = [
+                        data.Posting(self.account, amount, None, None,
+                                     None, None)
+                    ]
 
-                        entries.append(
-                            data.Transaction(
-                                meta, date, self.FLAG,
-                                line['Auftraggeber / Begünstigter'],
-                                description, data.EMPTY_SET, data.EMPTY_SET,
-                                postings
-                            )
+                    entries.append(
+                        data.Transaction(
+                            meta, date, self.FLAG,
+                            line['Auftraggeber/Empfänger'],
+                            description, data.EMPTY_SET, data.EMPTY_SET,
+                            postings
                         )
+                    )
 
                     line_index += 1
 
