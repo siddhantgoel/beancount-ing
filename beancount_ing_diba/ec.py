@@ -209,7 +209,7 @@ class ECImporter(importer.ImporterProtocol):
                     (
                         date,           # Buchung
                         _,              # Valuta
-                        entity,         # Auftraggeber/Empfänger
+                        payee,          # Auftraggeber/Empfänger
                         booking_text,   # Buchungstext
                         description,    # Verwendungszweck
                         _,              # Saldo
@@ -238,7 +238,7 @@ class ECImporter(importer.ImporterProtocol):
                     entries.append(
                         data.Transaction(
                             meta, date, self.FLAG,
-                            entity,
+                            payee,
                             description, data.EMPTY_SET, data.EMPTY_SET,
                             postings
                         )
