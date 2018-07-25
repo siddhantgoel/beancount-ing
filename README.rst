@@ -29,15 +29,14 @@ Usage
     from beancount_ing_diba import ECImporter
 
     CONFIG = [
+        # ...
+
         ECImporter(
             IBAN_NUMBER, 'Assets:INGDiBa:EC', 'Regina Phalange',
             numeric_locale='de_DE.UTF-8', file_encoding='ISO-8859-1'
         ),
 
-        CreditImporter(
-            CARD_NUMBER, 'Assets:INGDiBa:EC', 'Regina Phalange',
-            numeric_locale='de_DE.UTF-8', file_encoding='ISO-8859-1'
-        )
+        # ...
     ]
 
 .. _ING-DiBa: https://www.ing-diba.de/
