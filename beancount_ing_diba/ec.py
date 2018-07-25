@@ -198,23 +198,36 @@ class ECImporter(importer.ImporterProtocol):
                     raise InvalidFormatError()
 
                 # Data entries
-                reader = csv.DictReader(fd, delimiter=';',
-                                        quoting=csv.QUOTE_MINIMAL,
-                                        quotechar='"')
+                reader = csv.reader(fd, delimiter=';',
+                                    quoting=csv.QUOTE_MINIMAL,
+                                    quotechar='"')
 
                 for line in reader:
+                    if line == list(FIELDS):
+                        continue
+
+                    (
+                        date,           # Buchung
+                        _,              # Valuta
+                        entity,         # Auftraggeber/Empfänger
+                        booking_text,   # Buchungstext
+                        description,    # Verwendungszweck
+                        _,              # Saldo
+                        _,              # Währung
+                        amount,         # Betrag
+                        currency        # Währung
+                    ) = line
+
                     meta = data.new_metadata(file_.name, line_index)
 
-                    currency = line['Währung']
-
-                    amount = Amount(locale.atof(line['Betrag'], Decimal),
-                                    currency)
+                    amount = Amount(
+                        locale.atof(amount, Decimal), currency)
                     date = datetime.strptime(
-                        line['Buchung'], '%d.%m.%Y').date()
+                        date, '%d.%m.%Y').date()
 
                     description = '{} {}'.format(
-                        line['Buchungstext'],
-                        line['Verwendungszweck']
+                        booking_text,
+                        description,
                     )
 
                     postings = [
@@ -225,7 +238,7 @@ class ECImporter(importer.ImporterProtocol):
                     entries.append(
                         data.Transaction(
                             meta, date, self.FLAG,
-                            line['Auftraggeber/Empfänger'],
+                            entity,
                             description, data.EMPTY_SET, data.EMPTY_SET,
                             postings
                         )
