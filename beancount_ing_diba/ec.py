@@ -3,6 +3,7 @@ import csv
 from datetime import datetime
 from enum import Enum
 import locale
+import re
 
 from beancount.core.amount import Amount
 from beancount.core import data
@@ -36,7 +37,7 @@ class InvalidFormatError(Exception):
 
 
 @contextmanager
-def change_locale(key, value):
+def _change_locale(key, value):
     original = locale.getlocale(key)
 
     try:
@@ -46,9 +47,14 @@ def change_locale(key, value):
         locale.setlocale(key, original)
 
 
+def _format_iban(iban):
+    return re.sub(r'\s+', '', iban, flags=re.UNICODE)
+
+
 class ECImporter(importer.ImporterProtocol):
     def __init__(self, iban, account, user, currency='EUR',
                  numeric_locale='de_DE.UTF-8', file_encoding='ISO-8859-1'):
+        self.iban = _format_iban(iban)
         self.account = account
         self.user = user
         self.currency = currency
@@ -95,19 +101,25 @@ class ECImporter(importer.ImporterProtocol):
                                 quoting=csv.QUOTE_MINIMAL, quotechar='"')
 
             for line in reader:
-                key, value = line
+                key, value, *_ = line
 
-                if key == 'Bank':
-                    return value == 'ING-DiBa'
+                if key == 'IBAN' and _format_iban(value) != self.iban:
+                    return False
 
-        return False
+                if key == 'Bank' and value != BANK:
+                    return False
+
+                if key == 'Kunde' and value != self.user:
+                    return False
+
+        return True
 
     def extract(self, file_):
         entries = []
         line_index = 0
         closing_balance_index = -1
 
-        with change_locale(locale.LC_NUMERIC, self.numeric_locale):
+        with _change_locale(locale.LC_NUMERIC, self.numeric_locale):
             with open(file_.name, encoding=self.file_encoding) as fd:
                 # Header - first line
                 line = fd.readline().strip()

@@ -60,3 +60,53 @@ class ECImporterTestCase(TestCase):
 
         with open(self.filename) as fd:
             self.assertTrue(importer.identify(fd))
+
+    def test_identify_invalid_iban(self):
+        other_iban = 'DE00000000000000000000'
+
+        with open(self.filename, 'wb') as fd:
+            fd.write(self._format_data('''
+                Umsatzanzeige;Datei erstellt am: 25.07.2018 12:00
+                ;Letztes Update: aktuell
+
+                IBAN;{formatted_iban}
+                Kontoname;Extra-Konto
+                Bank;ING-DiBa
+                Kunde;{user}
+                Zeitraum;01.06.2018 - 30.06.2018
+                Saldo;5.000,00;EUR
+
+                In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+
+                {header}
+            '''))  # NOQA
+
+        importer = ECImporter(other_iban, 'Assets:ING-DiBa:Extra', self.user)
+
+        with open(self.filename) as fd:
+            self.assertFalse(importer.identify(fd))
+
+    def test_identify_invalid_user(self):
+        other_user = 'Ken Adams'
+
+        with open(self.filename, 'wb') as fd:
+            fd.write(self._format_data('''
+                Umsatzanzeige;Datei erstellt am: 25.07.2018 12:00
+                ;Letztes Update: aktuell
+
+                IBAN;{formatted_iban}
+                Kontoname;Extra-Konto
+                Bank;ING-DiBa
+                Kunde;{user}
+                Zeitraum;01.06.2018 - 30.06.2018
+                Saldo;5.000,00;EUR
+
+                In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+
+                {header}
+            '''))  # NOQA
+
+        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', other_user)
+
+        with open(self.filename) as fd:
+            self.assertFalse(importer.identify(fd))
