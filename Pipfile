@@ -8,6 +8,7 @@ beancount-ing-diba = {editable = true, path = "."}
 
 [dev-packages]
 "flake8" = "==3.5.0"
+pytest = "==3.6.3"
 
 [requires]
 python_version = "3.6"
