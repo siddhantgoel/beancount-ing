@@ -54,7 +54,7 @@ class PublishCommand(Command):
 
 setup(
     name='beancount-ing-diba',
-    version='0.1.0',
+    version='0.1.1',
     description='Beancount Importer for ING-DiBa CSV exports',
     long_description=long_description,
     author='Siddhant Goel',
