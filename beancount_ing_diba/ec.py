@@ -115,7 +115,6 @@ class ECImporter(importer.ImporterProtocol):
     def extract(self, file_):
         entries = []
         line_index = 0
-        closing_balance_index = -1
 
         with _change_locale(locale.LC_NUMERIC, self.numeric_locale):
             with open(file_.name, encoding=self.file_encoding) as fd:
@@ -174,7 +173,6 @@ class ECImporter(importer.ImporterProtocol):
 
                         self._balance = Amount(locale.atof(amount, Decimal),
                                                currency)
-                        closing_balance_index = line_index
 
                 # Empty line
                 line = fd.readline().strip()
@@ -245,12 +243,5 @@ class ECImporter(importer.ImporterProtocol):
                     )
 
                     line_index += 1
-
-                # Closing Balance
-                meta = data.new_metadata(file_.name, closing_balance_index)
-                entries.append(
-                    data.Balance(meta, self._date_to, self.account,
-                                 self._balance, None, None)
-                )
 
             return entries
