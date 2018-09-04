@@ -1,15 +1,23 @@
 [[source]]
+
 url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
-[packages]
-beancount-ing-diba = {editable = true, path = "."}
 
 [dev-packages]
-"flake8" = "==3.5.0"
-pytest = "==3.6.3"
+
+flake8 = "==3.5.0"
+pytest = "==3.7.4"
 twine = "==1.11.0"
 
+
 [requires]
+
 python_version = "3.6"
+
+
+[packages.beancount-ing-diba]
+
+editable = true
+path = "."
