@@ -9,7 +9,7 @@ name = "pypi"
 
 flake8 = "==3.5.0"
 pytest = "==3.8.1"
-twine = "==1.11.0"
+twine = "==1.12.0"
 
 
 [requires]
