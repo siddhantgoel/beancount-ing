@@ -7,7 +7,7 @@ name = "pypi"
 
 [dev-packages]
 
-flake8 = "==3.5.0"
+flake8 = "==3.6.0"
 pytest = "==3.9.2"
 twine = "==1.12.1"
 
