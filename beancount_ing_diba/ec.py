@@ -51,8 +51,14 @@ def _format_iban(iban):
 
 
 class ECImporter(importer.ImporterProtocol):
-    def __init__(self, iban, account, user, numeric_locale='de_DE.UTF-8',
-                 file_encoding='ISO-8859-1'):
+    def __init__(
+        self,
+        iban,
+        account,
+        user,
+        numeric_locale='de_DE.UTF-8',
+        file_encoding='ISO-8859-1',
+    ):
         self.iban = _format_iban(iban)
         self.account = account
         self.user = user
@@ -95,8 +101,9 @@ class ECImporter(importer.ImporterProtocol):
             # Meta
             lines = [fd.readline().strip() for _ in range(6)]
 
-            reader = csv.reader(lines, delimiter=';',
-                                quoting=csv.QUOTE_MINIMAL, quotechar='"')
+            reader = csv.reader(
+                lines, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
+            )
 
             for line in reader:
                 key, value, *_ = line
@@ -142,8 +149,12 @@ class ECImporter(importer.ImporterProtocol):
                 # Meta
                 lines = [fd.readline().strip() for _ in range(6)]
 
-                reader = csv.reader(lines, delimiter=';',
-                                    quoting=csv.QUOTE_MINIMAL, quotechar='"')
+                reader = csv.reader(
+                    lines,
+                    delimiter=';',
+                    quoting=csv.QUOTE_MINIMAL,
+                    quotechar='"',
+                )
 
                 for line in reader:
                     key, *values = line
@@ -165,14 +176,17 @@ class ECImporter(importer.ImporterProtocol):
                             raise InvalidFormatError()
 
                         self._date_from = datetime.strptime(
-                            splits[0], '%d.%m.%Y').date()
+                            splits[0], '%d.%m.%Y'
+                        ).date()
                         self._date_to = datetime.strptime(
-                            splits[1], '%d.%m.%Y').date()
+                            splits[1], '%d.%m.%Y'
+                        ).date()
                     elif key == 'Saldo':
                         amount, currency = values
 
-                        self._balance = Amount(locale.atof(amount, Decimal),
-                                               currency)
+                        self._balance = Amount(
+                            locale.atof(amount, Decimal), currency
+                        )
 
                 # Empty line
                 line = fd.readline().strip()
@@ -196,49 +210,51 @@ class ECImporter(importer.ImporterProtocol):
                     raise InvalidFormatError()
 
                 # Data entries
-                reader = csv.reader(fd, delimiter=';',
-                                    quoting=csv.QUOTE_MINIMAL,
-                                    quotechar='"')
+                reader = csv.reader(
+                    fd, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
+                )
 
                 for line in reader:
                     if line == list(FIELDS):
                         continue
 
                     (
-                        date,           # Buchung
-                        _,              # Valuta
-                        payee,          # Auftraggeber/Empfänger
-                        booking_text,   # Buchungstext
-                        description,    # Verwendungszweck
-                        _,              # Saldo
-                        _,              # Währung
-                        amount,         # Betrag
-                        currency        # Währung
+                        date,  # Buchung
+                        _,  # Valuta
+                        payee,  # Auftraggeber/Empfänger
+                        booking_text,  # Buchungstext
+                        description,  # Verwendungszweck
+                        _,  # Saldo
+                        _,  # Währung
+                        amount,  # Betrag
+                        currency,  # Währung
                     ) = line
 
                     meta = data.new_metadata(file_.name, line_index)
 
-                    amount = Amount(
-                        locale.atof(amount, Decimal), currency)
-                    date = datetime.strptime(
-                        date, '%d.%m.%Y').date()
+                    amount = Amount(locale.atof(amount, Decimal), currency)
+                    date = datetime.strptime(date, '%d.%m.%Y').date()
 
                     description = '{} {}'.format(
-                        booking_text,
-                        description,
-                    )
+                        booking_text, description
+                    ).strip()
 
                     postings = [
-                        data.Posting(self.account, amount, None, None,
-                                     None, None)
+                        data.Posting(
+                            self.account, amount, None, None, None, None
+                        )
                     ]
 
                     entries.append(
                         data.Transaction(
-                            meta, date, self.FLAG,
+                            meta,
+                            date,
+                            self.FLAG,
                             payee,
-                            description, data.EMPTY_SET, data.EMPTY_SET,
-                            postings
+                            description,
+                            data.EMPTY_SET,
+                            data.EMPTY_SET,
+                            postings,
                         )
                     )
 
