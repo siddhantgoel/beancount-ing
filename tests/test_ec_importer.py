@@ -63,7 +63,7 @@ class ECImporterTestCase(TestCase):
                         {header}
                         08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;REWE SAGT DANKE;1.234,00;EUR;500,00;EUR
                         ''',  # NOQA
-                        bank=bank
+                        bank=bank,
                     )
                 )
 
