@@ -10,7 +10,7 @@ from beancount.core.number import Decimal
 from beancount.ingest import importer
 
 
-BANK = 'ING-DiBa'
+BANKS = ('ING', 'ING-DiBa')
 
 FIELDS = (
     'Buchung',
@@ -111,7 +111,7 @@ class ECImporter(importer.ImporterProtocol):
                 if key == 'IBAN' and _format_iban(value) != self.iban:
                     return False
 
-                if key == 'Bank' and value != BANK:
+                if key == 'Bank' and value not in BANKS:
                     return False
 
                 if key == 'Kunde' and value != self.user:
@@ -164,7 +164,7 @@ class ECImporter(importer.ImporterProtocol):
                         if _format_iban(values[0]) != self.iban:
                             raise InvalidFormatError()
                     elif key == 'Bank':
-                        if values[0] != BANK:
+                        if values[0] not in BANKS:
                             raise InvalidFormatError()
                     elif key == 'Kunde':
                         if values[0] != self.user:
