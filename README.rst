@@ -32,8 +32,10 @@ Usage
         # ...
 
         ECImporter(
-            IBAN_NUMBER, 'Assets:INGDiBa:EC', 'Max Mustermann',
-            numeric_locale='de_DE.UTF-8', file_encoding='ISO-8859-1'
+            IBAN_NUMBER,
+            'Assets:INGDiBa:EC',
+            'Max Mustermann',
+            file_encoding='ISO-8859-1',
         ),
 
         # ...
