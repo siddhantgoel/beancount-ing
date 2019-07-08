@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "beancount-ing-diba"
-version = "0.1.2"
+version = "0.2.0"
 description = "Beancount Importer for ING-DiBa (DE) CSV exports"
 authors = ["Siddhant Goel <me@sgoel.org>"]
 license = "MIT"
@@ -13,6 +13,7 @@ classifiers = [
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3 :: Only",
 ]
 repository = "https://github.com/siddhantgoel/beancount-ing-diba"
 keywords = ["beancount", "cli-accounting", "finance"]
