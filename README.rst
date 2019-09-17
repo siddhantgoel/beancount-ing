@@ -1,11 +1,11 @@
 Beancount ING-DiBa Importer
 ===========================
 
+.. image:: https://github.com/siddhantgoel/beancount-ing-diba/workflows/beancount-ing-diba/badge.svg
+    :target: https://github.com/siddhantgoel/beancount-ing-diba/workflows/beancount-ing-diba/badge.svg
+
 .. image:: https://img.shields.io/pypi/v/beancount-ing-diba.svg
     :target: https://pypi.python.org/pypi/beancount-ing-diba
-
-.. image:: https://travis-ci.org/siddhantgoel/beancount-ing-diba.svg?branch=stable
-    :target: https://travis-ci.org/siddhantgoel/beancount-ing-diba
 
 :code:`beancount-ing-diba` provides an Importer for converting CSV exports of
 `ING-DiBa`_ account summaries to the Beancount_ format.
