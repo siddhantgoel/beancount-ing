@@ -22,6 +22,8 @@ FIELDS = (
     'Währung',
 )
 
+META_KEYS = ('IBAN', 'Kontoname', 'Bank', 'Kunde', 'Zeitraum', 'Saldo')
+
 PRE_HEADER = (
     'In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. '
     'Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in '
@@ -90,7 +92,7 @@ class ECImporter(importer.ImporterProtocol):
                 return False
 
             # Meta
-            lines = [_read_line() for _ in range(6)]
+            lines = [_read_line() for _ in range(len(META_KEYS))]
 
             reader = csv.reader(
                 lines, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
@@ -143,7 +145,7 @@ class ECImporter(importer.ImporterProtocol):
             _read_empty_line()
 
             # Meta
-            lines = [_read_line() for _ in range(6)]
+            lines = [_read_line() for _ in range(len(META_KEYS))]
 
             reader = csv.reader(
                 lines, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
