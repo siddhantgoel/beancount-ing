@@ -54,6 +54,7 @@ class ECImporter(importer.ImporterProtocol):
         self._date_from = None
         self._date_to = None
         self._balance = None
+        self._line_index = -1
 
     def file_account(self, _):
         return self.account
@@ -66,26 +67,29 @@ class ECImporter(importer.ImporterProtocol):
 
     def identify(self, file_):
         with open(file_.name, encoding=self.file_encoding) as fd:
+            def _read_line():
+                return fd.readline().strip()
+
             # Header - first line
-            line = fd.readline().strip()
+            line = _read_line()
 
             if not self._is_valid_first_header(line):
                 return False
 
             # Header - second line
-            line = fd.readline().strip()
+            line = _read_line()
 
             if not self._is_valid_second_header(line):
                 return False
 
             # Empty line
-            line = fd.readline().strip()
+            line = _read_line()
 
             if line:
                 return False
 
             # Meta
-            lines = [fd.readline().strip() for _ in range(6)]
+            lines = [_read_line() for _ in range(6)]
 
             reader = csv.reader(
                 lines, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
@@ -107,32 +111,38 @@ class ECImporter(importer.ImporterProtocol):
 
     def extract(self, file_):
         entries = []
-        line_index = 0
+        self._line_index = 0
+
+        def _read_line():
+            line = fd.readline().strip()
+            self._line_index += 1
+
+            return line
+
+        def _read_empty_line():
+            line = _read_line()
+
+            if line:
+                raise InvalidFormatError()
 
         with open(file_.name, encoding=self.file_encoding) as fd:
             # Header - first line
-            line = fd.readline().strip()
-            line_index += 1
+            line = _read_line()
 
             if not self._is_valid_first_header(line):
                 raise InvalidFormatError()
 
             # Header - second line
-            line = fd.readline().strip()
-            line_index += 1
+            line = _read_line()
 
             if not self._is_valid_second_header(line):
                 raise InvalidFormatError()
 
             # Empty line
-            line = fd.readline().strip()
-            line_index += 1
-
-            if line:
-                raise InvalidFormatError()
+            _read_empty_line()
 
             # Meta
-            lines = [fd.readline().strip() for _ in range(6)]
+            lines = [_read_line() for _ in range(6)]
 
             reader = csv.reader(
                 lines, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
@@ -140,7 +150,7 @@ class ECImporter(importer.ImporterProtocol):
 
             for line in reader:
                 key, *values = line
-                line_index += 1
+                self._line_index += 1
 
                 if key == 'IBAN':
                     if _format_iban(values[0]) != self.iban:
@@ -169,25 +179,16 @@ class ECImporter(importer.ImporterProtocol):
                     self._balance = Amount(_format_number_de(amount), currency)
 
             # Empty line
-            line = fd.readline().strip()
-            line_index += 1
-
-            if line:
-                raise InvalidFormatError()
+            _read_empty_line()
 
             # Pre-header line
-            line = fd.readline().strip()
-            line_index += 1
+            line = _read_line()
 
             if line != PRE_HEADER:
                 raise InvalidFormatError()
 
             # Empty line
-            line = fd.readline().strip()
-            line_index += 1
-
-            if line:
-                raise InvalidFormatError()
+            _read_empty_line()
 
             # Data entries
             reader = csv.reader(
@@ -210,7 +211,7 @@ class ECImporter(importer.ImporterProtocol):
                     currency,  # Währung
                 ) = line
 
-                meta = data.new_metadata(file_.name, line_index)
+                meta = data.new_metadata(file_.name, self._line_index)
 
                 amount = Amount(_format_number_de(amount), currency)
                 date = datetime.strptime(date, '%d.%m.%Y').date()
@@ -234,6 +235,6 @@ class ECImporter(importer.ImporterProtocol):
                     )
                 )
 
-                line_index += 1
+                self._line_index += 1
 
         return entries
