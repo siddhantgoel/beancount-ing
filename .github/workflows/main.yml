@@ -23,7 +23,7 @@ jobs:
         poetry install
     - name: Lint with flake8
       run: |
-        poetry run flake8 beancount_ing_diba/ tests/
+        make lint-flake8
     - name: Test with py.test
       run: |
-        poetry run py.test tests/
+        make test-pytest
