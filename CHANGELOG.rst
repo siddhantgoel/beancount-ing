@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+v0.2.1
+------
+- Support optional sorting line before the pre-header
+
 v0.2.0
 ------
 - Replace :code:`locale` based parsing of numbers with a simple helper function
