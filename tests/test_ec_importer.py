@@ -229,3 +229,35 @@ class ECImporterTestCase(TestCase):
         self.assertEqual(
             transactions[0].postings[0].units.number, Decimal('-500.00')
         )
+
+    def test_optional_sorting_line(self):
+        with open(self.filename, 'wb') as fd:
+            fd.write(
+                self._format_data(
+                    '''
+                    Umsatzanzeige;Datei erstellt am: 25.07.2018 12:00
+                    ;Letztes Update: aktuell
+
+                    IBAN;{formatted_iban}
+                    Kontoname;Extra-Konto
+                    Bank;ING-DiBa
+                    Kunde;{user}
+                    Zeitraum;01.06.2018 - 30.06.2018
+                    Saldo;5.000,00;EUR
+
+                    Sortierung;Datum absteigend
+
+                    In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+
+                    {header}
+                    08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
+                    '''  # NOQA
+                )
+            )
+
+        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+
+        with open(self.filename) as fd:
+            transactions = importer.extract(fd)
+
+        self.assertEqual(len(transactions), 1)

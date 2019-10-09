@@ -184,8 +184,13 @@ class ECImporter(importer.ImporterProtocol):
             # Empty line
             _read_empty_line()
 
-            # Pre-header line
+            # Pre-header line (or optional sorting line)
             line = _read_line()
+
+            if line.startswith('Sortierung'):
+                _read_empty_line()
+
+                line = _read_line()
 
             if line != PRE_HEADER:
                 raise InvalidFormatError()
