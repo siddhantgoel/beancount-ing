@@ -67,6 +67,7 @@ class ECImporter(importer.ImporterProtocol):
 
     def identify(self, file_):
         with open(file_.name, encoding=self.file_encoding) as fd:
+
             def _read_line():
                 return fd.readline().strip()
 
