@@ -7,6 +7,9 @@ Beancount ING-DiBa Importer
 .. image:: https://img.shields.io/pypi/v/beancount-ing-diba.svg
     :target: https://pypi.python.org/pypi/beancount-ing-diba
 
+.. image:: https://img.shields.io/pypi/pyversions/beancount-ing-diba.svg
+    :target: https://pypi.python.org/pypi/beancount-ing-diba
+
 :code:`beancount-ing-diba` provides an Importer for converting CSV exports of
 `ING-DiBa`_ account summaries to the Beancount_ format.
 
