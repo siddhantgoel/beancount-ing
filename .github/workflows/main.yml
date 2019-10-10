@@ -24,6 +24,10 @@ jobs:
     - name: Lint with flake8
       run: |
         make lint-flake8
+    - name: Lint with black
+      if: matrix.python-version != '3.5'
+      run: |
+        make lint-black
     - name: Test with py.test
       run: |
         make test-pytest
