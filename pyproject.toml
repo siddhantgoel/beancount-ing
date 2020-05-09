@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "beancount-ing-diba"
-version = "0.2.1"
+version = "0.3.0"
 description = "Beancount Importer for ING-DiBa (DE) CSV exports"
 authors = ["Siddhant Goel <me@sgoel.org>"]
 license = "MIT"
