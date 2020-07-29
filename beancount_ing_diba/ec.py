@@ -112,7 +112,7 @@ class ECImporter(importer.ImporterProtocol):
 
         return True
 
-    def extract(self, file_):
+    def extract(self, file_, existing_entries=None):
         entries = []
         self._line_index = 0
 
