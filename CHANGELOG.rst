@@ -1,8 +1,12 @@
 CHANGELOG
 =========
 
-v0.3
+v0.3.1
 ------
+- Update :code:`extract` interface
+
+v0.3
+----
 - Support Python 3.8
 
 v0.2.1
