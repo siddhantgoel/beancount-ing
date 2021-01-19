@@ -26,10 +26,8 @@ from.
 If you're not familiar with how to import external data into Beancount, please
 read [this guide] first.
 
-Adjust your [config file] to include `ECImporter` and `CreditImporter`
-(depending on what account you're trying to import).
-
-A sample configuration might look like the following:
+Adjust your [config file] to include the provided `ECImporter`. A sample
+configuration might look like the following:
 
 ```python
 from beancount_ing_diba import ECImporter
