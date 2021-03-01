@@ -212,12 +212,16 @@ class ECImporter(importer.ImporterProtocol):
                     _,  # Valuta
                     payee,  # Auftraggeber/Empfänger
                     booking_text,  # Buchungstext
+                    category,  # Kategorie
                     description,  # Verwendungszweck
                     _,  # Saldo
                     _,  # Währung
                     amount,  # Betrag
                     currency,  # Währung
                 ) = line
+
+                if amount == "Betrag":  ## skip header line, apparently there's an extra empty line somewhere
+                    continue
 
                 meta = data.new_metadata(file_.name, self._line_index)
 
