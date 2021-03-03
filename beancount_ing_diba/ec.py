@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import csv
 from datetime import datetime
 import re
@@ -129,6 +131,7 @@ class ECImporter(importer.ImporterProtocol):
                 raise InvalidFormatError()
 
         with open(file_.name, encoding=self.file_encoding) as fd:
+            
             # Header - first line
             line = _read_line()
 
@@ -204,23 +207,44 @@ class ECImporter(importer.ImporterProtocol):
             )
 
             for line in reader:
+                
                 if line == list(FIELDS):
                     continue
 
-                (
-                    date,  # Buchung
-                    _,  # Valuta
-                    payee,  # Auftraggeber/Empfänger
-                    booking_text,  # Buchungstext
-                    category,  # Kategorie
-                    description,  # Verwendungszweck
-                    _,  # Saldo
-                    _,  # Währung
-                    amount,  # Betrag
-                    currency,  # Währung
-                ) = line
+                date = ''
+                description = ''
+                payee = ''
+                booking_text = ''
+                amount = ''
+                currency = ''
+                _ = ''
+                try:
+                    (
+                        date,  # Buchung
+                        _,  # Valuta
+                        payee,  # Auftraggeber/Empfänger
+                        booking_text,  # Buchungstext
+                        category,  # Kategorie
+                        description,  # Verwendungszweck
+                        _,  # Saldo
+                        _,  # Währung
+                        amount,  # Betrag
+                        currency,  # Währung
+                    ) = line
+                except ValueError:
+                    (
+                        date,  # Buchung
+                        _,  # Valuta
+                        payee,  # Auftraggeber/Empfänger
+                        booking_text,  # Buchungstext
+                        description,  # Kategorie
+                        _,  # Saldo
+                        _,  # Währung
+                        amount,  # Betrag
+                        currency,  # Währung
+                    ) = line
 
-                if amount == "Betrag":  ## skip header line, apparently there's an extra empty line somewhere
+                if amount == "Betrag":  ## skip header line
                     continue
 
                 meta = data.new_metadata(file_.name, self._line_index)
