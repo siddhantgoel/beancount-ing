@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import csv
 from datetime import datetime
 import re
@@ -131,7 +129,6 @@ class ECImporter(importer.ImporterProtocol):
                 raise InvalidFormatError()
 
         with open(file_.name, encoding=self.file_encoding) as fd:
-            
             # Header - first line
             line = _read_line()
 
@@ -207,7 +204,6 @@ class ECImporter(importer.ImporterProtocol):
             )
 
             for line in reader:
-                
                 if line == list(FIELDS):
                     continue
 
@@ -244,7 +240,7 @@ class ECImporter(importer.ImporterProtocol):
                         currency,  # Währung
                     ) = line
 
-                if amount == "Betrag":  ## skip header line
+                if amount == "Betrag":
                     continue
 
                 meta = data.new_metadata(file_.name, self._line_index)
