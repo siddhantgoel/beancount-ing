@@ -5,7 +5,7 @@ from textwrap import dedent
 from unittest import TestCase
 import os
 
-from beancount_ing_diba.ec import BANKS, ECImporter, FIELDS
+from beancount_ing_diba.ec import BANKS, ECImporter, FIELDS, PRE_HEADER
 
 
 HEADER = ';'.join('"{}"'.format(field) for field in FIELDS)
@@ -36,6 +36,7 @@ class ECImporterTestCase(TestCase):
                 'formatted_iban': self.formatted_iban,
                 'header': HEADER,
                 'user': self.user,
+                'pre_header': PRE_HEADER,
             }
         )
         return dedent(string).format(**kwargs).lstrip().encode('ISO-8859-1')
@@ -58,7 +59,7 @@ class ECImporterTestCase(TestCase):
                         Zeitraum;01.06.2018 - 30.06.2018
                         Saldo;5.000,00;EUR
 
-                        In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+                        {pre_header}
 
                         {header}
                         08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;REWE SAGT DANKE;1.234,00;EUR;500,00;EUR
@@ -87,7 +88,7 @@ class ECImporterTestCase(TestCase):
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
 
-                    In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+                    {pre_header}
 
                     {header}
                     '''  # NOQA
@@ -116,7 +117,7 @@ class ECImporterTestCase(TestCase):
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
 
-                    In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+                    {pre_header}
 
                     {header}
                     '''  # NOQA
@@ -145,7 +146,7 @@ class ECImporterTestCase(TestCase):
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
 
-                    In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+                    {pre_header}
 
                     {header}
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;REWE SAGT DANKE;1.234,00;EUR;500,00;EUR
@@ -173,7 +174,7 @@ class ECImporterTestCase(TestCase):
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
 
-                    In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+                    {pre_header}
 
                     {header}
                     '''  # NOQA
@@ -200,7 +201,7 @@ class ECImporterTestCase(TestCase):
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
 
-                    In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+                    {pre_header}
 
                     {header}
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
@@ -247,7 +248,7 @@ class ECImporterTestCase(TestCase):
 
                     Sortierung;Datum absteigend
 
-                    In der CSV-Datei finden Sie alle bereits gebuchten Umsätze. Die vorgemerkten Umsätze werden nicht aufgenommen, auch wenn sie in Ihrem Internetbanking angezeigt werden.
+                    {pre_header}
 
                     {header}
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
