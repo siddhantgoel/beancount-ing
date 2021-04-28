@@ -10,18 +10,6 @@ from beancount.ingest import importer
 
 BANKS = ('ING', 'ING-DiBa')
 
-FIELDS = (
-    'Buchung',
-    'Valuta',
-    'Auftraggeber/Empfänger',
-    'Buchungstext',
-    'Verwendungszweck',
-    'Saldo',
-    'Währung',
-    'Betrag',
-    'Währung',
-)
-
 META_KEYS = ('IBAN', 'Kontoname', 'Bank', 'Kunde', 'Zeitraum', 'Saldo')
 
 PRE_HEADER = (
@@ -47,7 +35,9 @@ def _format_number_de(value: str) -> Decimal:
 
 
 class ECImporter(importer.ImporterProtocol):
-    def __init__(self, iban, account, user, file_encoding='ISO-8859-1'):
+    def __init__(
+        self, iban, account, user, file_encoding='ISO-8859-1',
+    ):
         self.iban = _format_iban(iban)
         self.account = account
         self.user = user
@@ -199,25 +189,17 @@ class ECImporter(importer.ImporterProtocol):
             _read_empty_line()
 
             # Data entries
-            reader = csv.reader(
+            reader = csv.DictReader(
                 fd, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
             )
 
             for line in reader:
-                if line == list(FIELDS):
-                    continue
-
-                (
-                    date,  # Buchung
-                    _,  # Valuta
-                    payee,  # Auftraggeber/Empfänger
-                    booking_text,  # Buchungstext
-                    description,  # Verwendungszweck
-                    _,  # Saldo
-                    _,  # Währung
-                    amount,  # Betrag
-                    currency,  # Währung
-                ) = line
+                date = line['Buchung']
+                payee = line['Auftraggeber/Empfänger']
+                booking_text = line['Buchungstext']
+                description = line['Verwendungszweck']
+                amount = line['Betrag']
+                currency = line['Währung']
 
                 meta = data.new_metadata(file_.name, self._line_index)
 

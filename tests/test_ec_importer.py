@@ -5,10 +5,23 @@ from textwrap import dedent
 from unittest import TestCase
 import os
 
-from beancount_ing_diba.ec import BANKS, ECImporter, FIELDS, PRE_HEADER
+from beancount_ing_diba.ec import BANKS, ECImporter, PRE_HEADER
 
 
-HEADER = ';'.join('"{}"'.format(field) for field in FIELDS)
+HEADER = ';'.join(
+    '"{}"'.format(field)
+    for field in (
+        'Buchung',
+        'Valuta',
+        'Auftraggeber/Empfänger',
+        'Buchungstext',
+        'Verwendungszweck',
+        'Saldo',
+        'Währung',
+        'Betrag',
+        'Währung',
+    )
+)
 
 
 def path_for_temp_file(name):
@@ -17,7 +30,7 @@ def path_for_temp_file(name):
 
 class ECImporterTestCase(TestCase):
     def setUp(self):
-        super(ECImporterTestCase, self).setUp()
+        super().setUp()
 
         self.iban = 'DE99999999999999999999'
         self.formatted_iban = 'DE99 9999 9999 9999 9999 99'
@@ -28,7 +41,7 @@ class ECImporterTestCase(TestCase):
         if os.path.isfile(self.filename):
             os.remove(self.filename)
 
-        super(ECImporterTestCase, self).tearDown()
+        super().tearDown()
 
     def _format_data(self, string, **kwargs):
         kwargs.update(
@@ -252,6 +265,38 @@ class ECImporterTestCase(TestCase):
 
                     {header}
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
+                    '''  # NOQA
+                )
+            )
+
+        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+
+        with open(self.filename) as fd:
+            transactions = importer.extract(fd)
+
+        self.assertEqual(len(transactions), 1)
+
+    def test_category_included(self):
+        with open(self.filename, 'wb') as fd:
+            fd.write(
+                self._format_data(
+                    '''
+                    Umsatzanzeige;Datei erstellt am: 25.07.2018 12:00
+                    ;Letztes Update: aktuell
+
+                    IBAN;{formatted_iban}
+                    Kontoname;Extra-Konto
+                    Bank;ING-DiBa
+                    Kunde;{user}
+                    Zeitraum;01.06.2018 - 30.06.2018
+                    Saldo;5.000,00;EUR
+
+                    Sortierung;Datum absteigend
+
+                    {pre_header}
+
+                    "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
+                    08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
                     '''  # NOQA
                 )
             )
