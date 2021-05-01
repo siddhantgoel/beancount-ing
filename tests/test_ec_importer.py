@@ -307,3 +307,34 @@ class ECImporterTestCase(TestCase):
             transactions = importer.extract(fd)
 
         self.assertEqual(len(transactions), 1)
+
+    def test_no_second_header(self):
+        with open(self.filename, 'wb') as fd:
+            fd.write(
+                self._format_data(
+                    '''
+                    Umsatzanzeige;Datei erstellt am: 25.07.2018 12:00
+
+                    IBAN;{formatted_iban}
+                    Kontoname;Extra-Konto
+                    Bank;ING-DiBa
+                    Kunde;{user}
+                    Zeitraum;01.06.2018 - 30.06.2018
+                    Saldo;5.000,00;EUR
+
+                    Sortierung;Datum absteigend
+
+                    {pre_header}
+
+                    "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
+                    08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
+                    '''  # NOQA
+                )
+            )
+
+        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+
+        with open(self.filename) as fd:
+            transactions = importer.extract(fd)
+
+        self.assertEqual(len(transactions), 1)
