@@ -162,7 +162,7 @@ class ECImporter(importer.ImporterProtocol):
                 elif key == 'Sortierung':
                     pass # sorting not yet processed
 
-            if len(transaction_data) == 0 or not re.match('Buchung;Valuta;', transaction_data[0]['s']):
+            if len(transaction_data) == 0 or not re.match('\"?Buchung\"?;\"?Valuta\"?;', transaction_data[0]['s']):
                 # no transaction data or no column headers
                 raise InvalidFormatError()
 
