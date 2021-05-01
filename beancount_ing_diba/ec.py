@@ -46,7 +46,6 @@ class ECImporter(importer.ImporterProtocol):
         self._date_from = None
         self._date_to = None
         self._balance = None
-        self._line_index = -1
 
     def file_account(self, _):
         return self.account
@@ -69,14 +68,14 @@ class ECImporter(importer.ImporterProtocol):
             if not self._is_valid_first_header(line):
                 return False
 
-            # Header - second line
+            # Header - second line (optional)
             line = _read_line()
 
-            if not self._is_valid_second_header(line):
-                return False
-
-            # Empty line
-            line = _read_line()
+            if line:
+                if not self._is_valid_second_header(line):
+                    return False
+                # Empty line
+                line = _read_line() # this must be empty line
 
             if line:
                 return False
@@ -104,47 +103,37 @@ class ECImporter(importer.ImporterProtocol):
 
     def extract(self, file_, existing_entries=None):
         entries = []
-        self._line_index = 0
-
-        def _read_line():
-            line = fd.readline().strip()
-            self._line_index += 1
-
-            return line
-
-        def _read_empty_line():
-            line = _read_line()
-
-            if line:
-                raise InvalidFormatError()
 
         with open(file_.name, encoding=self.file_encoding) as fd:
-            # Header - first line
-            line = _read_line()
+            l = fd.readlines()
 
-            if not self._is_valid_first_header(line):
-                raise InvalidFormatError()
+            # lines: array of dicts line number <n> and line content <s> { 'n' : <n>, 's': <s> }
+            lines = [ { 'n':i+1, 's': l[i].strip() } for i in range(len(l)) ]
+            metadata=[] # array of lines (no line number)
+            transaction_data=[] # array of dicts (as lines above)
+            for i in range(len(lines)):
+                s = lines[i]['s']
+                # skip empty line
+                if not s:
+                    continue
+                if re.match(PRE_HEADER, s):
+                    # end of metadata; read closing empty line and finish reading metadata
+                    # transaction_data begins after an empty line
+                    transaction_data = lines[i+2:]
+                    break
 
-            # Header - second line
-            line = _read_line()
-
-            if not self._is_valid_second_header(line):
-                raise InvalidFormatError()
-
-            # Empty line
-            _read_empty_line()
-
-            # Meta
-            lines = [_read_line() for _ in range(len(META_KEYS))]
+                metadata.append(s)
 
             reader = csv.reader(
-                lines, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
+                metadata, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
             )
 
             for line in reader:
                 key, *values = line
-                self._line_index += 1
 
+                if key == '':
+                    # no key: this is the ";Letztes Update: aktuell" line
+                    pass
                 if key == 'IBAN':
                     if _format_iban(values[0]) != self.iban:
                         raise InvalidFormatError()
@@ -170,27 +159,25 @@ class ECImporter(importer.ImporterProtocol):
                     amount, currency = values
 
                     self._balance = Amount(_format_number_de(amount), currency)
+                elif key == 'Sortierung':
+                    pass # sorting not yet processed
 
-            # Empty line
-            _read_empty_line()
-
-            # Pre-header line (or optional sorting line)
-            line = _read_line()
-
-            if line.startswith('Sortierung'):
-                _read_empty_line()
-
-                line = _read_line()
-
-            if line != PRE_HEADER:
+            if len(transaction_data) == 0 or not re.match('Buchung;Valuta;', transaction_data[0]['s']):
+                # no transaction data or no column headers
                 raise InvalidFormatError()
 
-            # Empty line
-            _read_empty_line()
+            # Prepend __lineno__ column
+            transaction_data[0]['s'] = '__lineno__;' + transaction_data[0]['s']
 
-            # Data entries
+            # for each consequent rows: prepend actual line number as a meta column
+            for i in range(1, len(transaction_data)):
+                transaction_data[i]['s'] = str(transaction_data[i]['n']) + ';' + transaction_data[i]['s']
+
+            # Create transaction_lines list
+            transaction_lines=[t['s'] for t in transaction_data]
+
             reader = csv.DictReader(
-                fd, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
+                transaction_lines, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
             )
 
             for line in reader:
@@ -201,7 +188,7 @@ class ECImporter(importer.ImporterProtocol):
                 amount = line['Betrag']
                 currency = line['Währung']
 
-                meta = data.new_metadata(file_.name, self._line_index)
+                meta = data.new_metadata(file_.name, line['__lineno__'])
 
                 amount = Amount(_format_number_de(amount), currency)
                 date = datetime.strptime(date, '%d.%m.%Y').date()
@@ -224,7 +211,5 @@ class ECImporter(importer.ImporterProtocol):
                         postings,
                     )
                 )
-
-                self._line_index += 1
 
         return entries
