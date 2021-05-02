@@ -17,7 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3 :: Only",
 ]
-include = ["README.rst", "License.txt"]
+include = ["README.md", "License.txt"]
 repository = "https://github.com/siddhantgoel/beancount-ing-diba"
 keywords = ["banking", "beancount", "cli-accounting", "finance"]
 
