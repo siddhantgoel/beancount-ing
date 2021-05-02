@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.4.0
+
+- Support "Kategorie" field in the CSV downloads
+- Enable support for Python 3.9
+- Drop support for Python 3.5
+
 ## v0.3.1
 
 - Update `extract` interface
