@@ -2,7 +2,7 @@
 name = "beancount-ing-diba"
 version = "0.3.1"
 description = "Beancount Importer for ING-DiBa (DE) CSV exports"
-authors = ["Siddhant Goel <me@sgoel.org>"]
+authors = ["Siddhant Goel <me@sgoel.dev>"]
 license = "MIT"
 classifiers = [
     "Development Status :: 4 - Beta",
