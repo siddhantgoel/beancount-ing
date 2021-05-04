@@ -69,14 +69,14 @@ class ECImporter(importer.ImporterProtocol):
             if not self._is_valid_first_header(line):
                 return False
 
-            # Header - second line
+            # Header - second line (optional)
             line = _read_line()
 
-            if not self._is_valid_second_header(line):
-                return False
-
-            # Empty line
-            line = _read_line()
+            if line:
+                if not self._is_valid_second_header(line):
+                    return False
+                # Empty line
+                line = _read_line()
 
             if line:
                 return False
@@ -125,14 +125,15 @@ class ECImporter(importer.ImporterProtocol):
             if not self._is_valid_first_header(line):
                 raise InvalidFormatError()
 
-            # Header - second line
+            # Header - second line (optional)
             line = _read_line()
 
-            if not self._is_valid_second_header(line):
-                raise InvalidFormatError()
+            if line:
+                if not self._is_valid_second_header(line):
+                    raise InvalidFormatError()
 
-            # Empty line
-            _read_empty_line()
+                # Empty line
+                _read_empty_line()
 
             # Meta
             lines = [_read_line() for _ in range(len(META_KEYS))]
