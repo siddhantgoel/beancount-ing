@@ -274,7 +274,8 @@ class ECImporterTestCase(TestCase):
         with open(self.filename) as fd:
             transactions = importer.extract(fd)
 
-        self.assertEqual(len(transactions), 1)
+        # 1 transaction + 2 balance assertions
+        self.assertEqual(len(transactions), 1 + 2)
 
     def test_category_included(self):
         with open(self.filename, 'wb') as fd:
@@ -306,7 +307,8 @@ class ECImporterTestCase(TestCase):
         with open(self.filename) as fd:
             transactions = importer.extract(fd)
 
-        self.assertEqual(len(transactions), 1)
+        # 1 transaction + 2 balance assertions
+        self.assertEqual(len(transactions), 1 + 2)
 
     def test_no_second_header(self):
         with open(self.filename, 'wb') as fd:
@@ -337,7 +339,8 @@ class ECImporterTestCase(TestCase):
         with open(self.filename) as fd:
             transactions = importer.extract(fd)
 
-        self.assertEqual(len(transactions), 1)
+        # 1 transaction + 2 balance assertions
+        self.assertEqual(len(transactions), 1 + 2)
 
     def test_duplicate_waehrung_field_handled_correctly(self):
         with open(self.filename, 'wb') as fd:
@@ -368,5 +371,6 @@ class ECImporterTestCase(TestCase):
         with open(self.filename) as fd:
             transactions = importer.extract(fd)
 
-        self.assertEqual(len(transactions), 1)
+        # 1 transaction + 2 balance assertions
+        self.assertEqual(len(transactions), 1 + 2)
         self.assertEqual(transactions[0].postings[0].units.currency, 'EUR')
