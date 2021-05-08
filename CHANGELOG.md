@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.4.1
+
+- Handle duplicate "Währung" field name (thanks [@codedump] for the heads-up)
+- Allow optional ";Letztes Update: aktuell" line in the header (thanks [@szabootibor])
+
 ## v0.4.0
 
 - Support "Kategorie" field in the CSV downloads
@@ -35,3 +40,6 @@
 ## v0.1
 
 - Initial release
+
+[@codedump]: https://github.com/codedump
+[@szabootibor]: https://github.com/szabootibor
