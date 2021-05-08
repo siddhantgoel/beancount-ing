@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+from itertools import count
 import re
 
 from beancount.core.amount import Amount
@@ -190,17 +191,32 @@ class ECImporter(importer.ImporterProtocol):
             _read_empty_line()
 
             # Data entries
-            reader = csv.DictReader(
+            reader = csv.reader(
                 fd, delimiter=';', quoting=csv.QUOTE_MINIMAL, quotechar='"'
             )
 
-            for line in reader:
+            def remap(names):
+                # https://stackoverflow.com/a/31771695
+                counter = count(1)
+
+                return [
+                    'Währung_{}'.format(next(counter))
+                    if name == 'Währung'
+                    else name
+                    for name in names
+                ]
+
+            field_names = remap(next(reader))
+
+            for row in reader:
+                line = dict(zip(field_names, row))
+
                 date = line['Buchung']
                 payee = line['Auftraggeber/Empfänger']
                 booking_text = line['Buchungstext']
                 description = line['Verwendungszweck']
                 amount = line['Betrag']
-                currency = line['Währung']
+                currency = line['Währung_2']
 
                 meta = data.new_metadata(file_.name, self._line_index)
 
