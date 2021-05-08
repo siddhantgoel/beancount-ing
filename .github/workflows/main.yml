@@ -30,6 +30,7 @@ jobs:
         make lint-flake8
 
     - name: Lint with black
+      if: matrix.python-version != '3.6'
       run: |
         make lint-black
 
