@@ -37,7 +37,11 @@ def _format_number_de(value: str) -> Decimal:
 
 class ECImporter(importer.ImporterProtocol):
     def __init__(
-        self, iban, account, user, file_encoding='ISO-8859-1',
+        self,
+        iban,
+        account,
+        user,
+        file_encoding='ISO-8859-1',
     ):
         self.iban = _format_iban(iban)
         self.account = account
