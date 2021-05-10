@@ -51,7 +51,6 @@ class ECImporter(importer.ImporterProtocol):
 
         self._date_from = None
         self._date_to = None
-        self._balance = None
         self._line_index = -1
 
     def file_account(self, _):
@@ -174,9 +173,11 @@ class ECImporter(importer.ImporterProtocol):
                         splits[1], '%d.%m.%Y'
                     ).date()
                 elif key == 'Saldo':
-                    amount, currency = values
-                    # actually this is not a useful balance; see issue #69
-                    self._balance = Amount(_format_number_de(amount), currency)
+                    # actually this is not a useful balance, because it is
+                    # valid on the date of generating the CSV (see first header
+                    # line) and not on the closing date of the transactions
+                    # (see metadata field 'Zeitraum')
+                    pass
 
             # Empty line
             _read_empty_line()
