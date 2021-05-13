@@ -2,7 +2,7 @@ import csv
 from datetime import datetime, timedelta
 from itertools import count
 import re
-import logging
+import warnings
 
 from beancount.core.amount import Amount
 from beancount.core import data
@@ -275,20 +275,31 @@ class ECImporter(importer.ImporterProtocol):
                 balance = _format_number_de(line['Saldo'])
                 if opening:
                     # calculate balance before the first transaction
+                    # Currencies must match for subtraction
+                    if line['Währung_1'] != line['Währung_2']:
+                        warnings.warn(
+                            f"{file_.name}: "
+                            "opening balance can not be generated "
+                            "due to currency mismatch: "
+                            f"{line['Währung_1']} <> {line['Währung_2']}"
+                        )
+                        return []
                     balance -= _format_number_de(line['Betrag'])
                     balancedate = self._date_from
                 if closing:
                     # balance after the last transaction:
                     # next day's opening balance
                     balancedate = self._date_to + timedelta(days=1)
-                return data.Balance(
-                    data.new_metadata(file_.name, lineno),
-                    balancedate,
-                    self.account,
-                    Amount(balance, line['Währung_1']),
-                    None,
-                    None,
-                )
+                return [
+                    data.Balance(
+                        data.new_metadata(file_.name, lineno),
+                        balancedate,
+                        self.account,
+                        Amount(balance, line['Währung_1']),
+                        None,
+                        None,
+                    )
+                ]
 
             opening_transaction = closing_transaction = None
 
@@ -301,11 +312,11 @@ class ECImporter(importer.ImporterProtocol):
                 opening_transaction = last_transaction
 
             if opening_transaction:
-                entries.append(
+                entries.extend(
                     balance_assertion(opening_transaction, opening=True)
                 )
             if closing_transaction:
-                entries.append(
+                entries.extend(
                     balance_assertion(closing_transaction, closing=True)
                 )
 

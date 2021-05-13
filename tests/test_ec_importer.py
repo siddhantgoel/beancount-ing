@@ -371,6 +371,6 @@ class ECImporterTestCase(TestCase):
         with open(self.filename) as fd:
             transactions = importer.extract(fd)
 
-        # 1 transaction + 2 balance assertions
-        self.assertEqual(len(transactions), 1 + 2)
+        # 1 transaction + 1 balance assertion (opening balance can not be calculated due to currency mismatch)
+        self.assertEqual(len(transactions), 1 + 1)
         self.assertEqual(transactions[0].postings[0].units.currency, 'EUR')
