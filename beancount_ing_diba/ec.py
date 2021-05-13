@@ -193,7 +193,7 @@ class ECImporter(importer.ImporterProtocol):
                 elif re.match('.*Datum aufsteigend', line):
                     ascending_by_date = True
                 else:
-                    logging.warning(
+                    warnings.warn(
                         f'{file_.name}:{self._line_index}: '
                         'balance assertions can only be generated '
                         'if transactions are sorted by date'
