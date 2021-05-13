@@ -226,7 +226,7 @@ class ECImporter(importer.ImporterProtocol):
 
             field_names = remap(next(reader))
 
-            # memorize first and last transactions for balance assertion
+            # memoize first and last transactions for balance assertion
             first_transaction = last_transaction = None
 
             for row in reader:
