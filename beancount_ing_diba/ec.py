@@ -278,7 +278,7 @@ class ECImporter(importer.ImporterProtocol):
                     # Currencies must match for subtraction
                     if line['Währung_1'] != line['Währung_2']:
                         warnings.warn(
-                            f"{file_.name}: "
+                            f"{file_.name}:{lineno} "
                             "opening balance can not be generated "
                             "due to currency mismatch: "
                             f"{line['Währung_1']} <> {line['Währung_2']}"
