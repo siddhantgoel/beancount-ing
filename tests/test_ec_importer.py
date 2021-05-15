@@ -4,6 +4,7 @@ from tempfile import gettempdir
 from textwrap import dedent
 from unittest import TestCase
 import os
+from datetime import date
 
 from beancount_ing_diba.ec import BANKS, ECImporter, PRE_HEADER
 
@@ -274,7 +275,8 @@ class ECImporterTestCase(TestCase):
         with open(self.filename) as fd:
             transactions = importer.extract(fd)
 
-        self.assertEqual(len(transactions), 1)
+        # 1 transaction + 2 balance assertions
+        self.assertEqual(len(transactions), 1 + 2)
 
     def test_category_included(self):
         with open(self.filename, 'wb') as fd:
@@ -306,7 +308,8 @@ class ECImporterTestCase(TestCase):
         with open(self.filename) as fd:
             transactions = importer.extract(fd)
 
-        self.assertEqual(len(transactions), 1)
+        # 1 transaction + 2 balance assertions
+        self.assertEqual(len(transactions), 1 + 2)
 
     def test_no_second_header(self):
         with open(self.filename, 'wb') as fd:
@@ -337,7 +340,8 @@ class ECImporterTestCase(TestCase):
         with open(self.filename) as fd:
             transactions = importer.extract(fd)
 
-        self.assertEqual(len(transactions), 1)
+        # 1 transaction + 2 balance assertions
+        self.assertEqual(len(transactions), 1 + 2)
 
     def test_duplicate_waehrung_field_handled_correctly(self):
         with open(self.filename, 'wb') as fd:
@@ -368,5 +372,205 @@ class ECImporterTestCase(TestCase):
         with open(self.filename) as fd:
             transactions = importer.extract(fd)
 
-        self.assertEqual(len(transactions), 1)
+        # 1 transaction + 1 balance assertion
+        # (opening balance cannot be calculated due to currency mismatch)
+        self.assertEqual(len(transactions), 1 + 1)
         self.assertEqual(transactions[0].postings[0].units.currency, 'EUR')
+
+    def test_bad_sorting_no_balances(self):
+        with open(self.filename, 'wb') as fd:
+            fd.write(
+                self._format_data(
+                    '''
+                    Umsatzanzeige;Datei erstellt am: 25.07.2018 12:00
+
+                    IBAN;{formatted_iban}
+                    Kontoname;Extra-Konto
+                    Bank;ING-DiBa
+                    Kunde;{user}
+                    Zeitraum;01.06.2018 - 30.06.2018
+                    Saldo;5.000,00;EUR
+
+                    Sortierung;Betrag absteigend
+
+                    {pre_header}
+
+                    "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
+                    08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;USD;-500,00;EUR
+                    '''  # NOQA
+                )
+            )
+
+        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+
+        with open(self.filename) as fd:
+            transactions = importer.extract(fd)
+
+        # 1 transaction + no balance assertion (not sorted by date)
+        self.assertEqual(len(transactions), 1)
+
+    def test_ascending_by_date_single(self):
+        with open(self.filename, 'wb') as fd:
+            fd.write(
+                self._format_data(
+                    '''
+                    Umsatzanzeige;Datei erstellt am: 25.07.2018 12:00
+
+                    IBAN;{formatted_iban}
+                    Kontoname;Extra-Konto
+                    Bank;ING-DiBa
+                    Kunde;{user}
+                    Zeitraum;01.06.2018 - 30.06.2018
+                    Saldo;5.000,00;EUR
+
+                    Sortierung;Datum aufsteigend
+
+                    {pre_header}
+
+                    "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
+                    08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
+                    '''  # NOQA
+                )
+            )
+
+        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+
+        with open(self.filename) as fd:
+            transactions = importer.extract(fd)
+
+        # 1 transaction + 2 balance assertions
+        self.assertEqual(len(transactions), 1 + 2)
+        # Test opening balance
+        self.assertEqual(transactions[1].date, date(2018, 6, 1))
+        self.assertEqual(transactions[1].amount.number, 1734.0)
+        self.assertEqual(transactions[1].amount.currency, 'EUR')
+        # Test closing balance
+        self.assertEqual(transactions[2].date, date(2018, 7, 1))
+        self.assertEqual(transactions[2].amount.number, 1234.0)
+        self.assertEqual(transactions[2].amount.currency, 'EUR')
+
+    def test_ascending_by_date_multiple(self):
+        with open(self.filename, 'wb') as fd:
+            fd.write(
+                self._format_data(
+                    '''
+                    Umsatzanzeige;Datei erstellt am: 25.07.2018 12:00
+
+                    IBAN;{formatted_iban}
+                    Kontoname;Extra-Konto
+                    Bank;ING-DiBa
+                    Kunde;{user}
+                    Zeitraum;01.06.2018 - 30.06.2018
+                    Saldo;5.000,00;EUR
+
+                    Sortierung;Datum aufsteigend
+
+                    {pre_header}
+
+                    "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
+                    08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
+                    08.06.2018;08.06.2018;LIDL;Lastschrift;Kategorie;LIDL SAGT DANKE;1.200,00;EUR;-34,00;EUR
+                    15.06.2018;08.06.2018;LIDL;Lastschrift;Kategorie;LIDL SAGT DANKE;1.100,00;EUR;-100,00;EUR
+                    15.06.2018;08.06.2018;LIDL;Lastschrift;Kategorie;LIDL SAGT DANKE;1.000,00;EUR;-100,00;EUR
+                    '''  # NOQA
+                )
+            )
+
+        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+
+        with open(self.filename) as fd:
+            transactions = importer.extract(fd)
+
+        # 4 transactions + 2 balance assertions
+        self.assertEqual(len(transactions), 4 + 2)
+        # Test opening balance
+        self.assertEqual(transactions[4].date, date(2018, 6, 1))
+        self.assertEqual(transactions[4].amount.number, 1734.0)
+        self.assertEqual(transactions[4].amount.currency, 'EUR')
+        # Test closing balance
+        self.assertEqual(transactions[5].date, date(2018, 7, 1))
+        self.assertEqual(transactions[5].amount.number, 1000.0)
+        self.assertEqual(transactions[5].amount.currency, 'EUR')
+
+    def test_descending_by_date_single(self):
+        with open(self.filename, 'wb') as fd:
+            fd.write(
+                self._format_data(
+                    '''
+                    Umsatzanzeige;Datei erstellt am: 25.07.2018 12:00
+
+                    IBAN;{formatted_iban}
+                    Kontoname;Extra-Konto
+                    Bank;ING-DiBa
+                    Kunde;{user}
+                    Zeitraum;01.06.2018 - 30.06.2018
+                    Saldo;5.000,00;EUR
+
+                    Sortierung;Datum absteigend
+
+                    {pre_header}
+
+                    "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
+                    08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
+                    '''  # NOQA
+                )
+            )
+
+        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+
+        with open(self.filename) as fd:
+            transactions = importer.extract(fd)
+
+        # 1 transaction + 2 balance assertions
+        self.assertEqual(len(transactions), 1 + 2)
+        # Test opening balance
+        self.assertEqual(transactions[1].date, date(2018, 6, 1))
+        self.assertEqual(transactions[1].amount.number, 1734.0)
+        self.assertEqual(transactions[1].amount.currency, 'EUR')
+        # Test closing balance
+        self.assertEqual(transactions[2].date, date(2018, 7, 1))
+        self.assertEqual(transactions[2].amount.number, 1234.0)
+        self.assertEqual(transactions[2].amount.currency, 'EUR')
+
+    def test_descending_by_date_multiple(self):
+        with open(self.filename, 'wb') as fd:
+            fd.write(
+                self._format_data(
+                    '''
+                    Umsatzanzeige;Datei erstellt am: 25.07.2018 12:00
+
+                    IBAN;{formatted_iban}
+                    Kontoname;Extra-Konto
+                    Bank;ING-DiBa
+                    Kunde;{user}
+                    Zeitraum;01.06.2018 - 30.06.2018
+                    Saldo;5.000,00;EUR
+
+                    Sortierung;Datum absteigend
+
+                    {pre_header}
+
+                    "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
+                    15.06.2018;08.06.2018;LIDL;Lastschrift;Kategorie;LIDL SAGT DANKE;1.000,00;EUR;-100,00;EUR
+                    15.06.2018;08.06.2018;LIDL;Lastschrift;Kategorie;LIDL SAGT DANKE;1.100,00;EUR;-100,00;EUR
+                    08.06.2018;08.06.2018;LIDL;Lastschrift;Kategorie;LIDL SAGT DANKE;1.200,00;EUR;-34,00;EUR
+                    08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
+                    '''  # NOQA
+                )
+            )
+
+        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+
+        with open(self.filename) as fd:
+            transactions = importer.extract(fd)
+
+        # 4 transactions + 2 balance assertions
+        self.assertEqual(len(transactions), 4 + 2)
+        # Test opening balance
+        self.assertEqual(transactions[4].date, date(2018, 6, 1))
+        self.assertEqual(transactions[4].amount.number, 1734.0)
+        self.assertEqual(transactions[4].amount.currency, 'EUR')
+        # Test closing balance
+        self.assertEqual(transactions[5].date, date(2018, 7, 1))
+        self.assertEqual(transactions[5].amount.number, 1000.0)
+        self.assertEqual(transactions[5].amount.currency, 'EUR')

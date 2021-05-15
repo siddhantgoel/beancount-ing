@@ -1,7 +1,8 @@
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import count
 import re
+import warnings
 
 from beancount.core.amount import Amount
 from beancount.core import data
@@ -50,7 +51,6 @@ class ECImporter(importer.ImporterProtocol):
 
         self._date_from = None
         self._date_to = None
-        self._balance = None
         self._line_index = -1
 
     def file_account(self, _):
@@ -173,9 +173,11 @@ class ECImporter(importer.ImporterProtocol):
                         splits[1], '%d.%m.%Y'
                     ).date()
                 elif key == 'Saldo':
-                    amount, currency = values
-
-                    self._balance = Amount(_format_number_de(amount), currency)
+                    # actually this is not a useful balance, because it is
+                    # valid on the date of generating the CSV (see first header
+                    # line) and not on the closing date of the transactions
+                    # (see metadata field 'Zeitraum')
+                    pass
 
             # Empty line
             _read_empty_line()
@@ -183,7 +185,19 @@ class ECImporter(importer.ImporterProtocol):
             # Pre-header line (or optional sorting line)
             line = _read_line()
 
+            descending_by_date = ascending_by_date = None
+
             if line.startswith('Sortierung'):
+                if re.match('.*Datum absteigend', line):
+                    descending_by_date = True
+                elif re.match('.*Datum aufsteigend', line):
+                    ascending_by_date = True
+                else:
+                    warnings.warn(
+                        f'{file_.name}:{self._line_index}: '
+                        'balance assertions can only be generated '
+                        'if transactions are sorted by date'
+                    )
                 _read_empty_line()
 
                 line = _read_line()
@@ -212,9 +226,16 @@ class ECImporter(importer.ImporterProtocol):
 
             field_names = remap(next(reader))
 
+            # memoize first and last transactions for balance assertion
+            first_transaction = last_transaction = None
+
             for row in reader:
                 line = dict(zip(field_names, row))
 
+                # Mark first and last transaction together with line numbers
+                last_transaction = (self._line_index, line)
+                if first_transaction is None:
+                    first_transaction = last_transaction
                 date = line['Buchung']
                 payee = line['Auftraggeber/Empfänger']
                 booking_text = line['Buchungstext']
@@ -247,5 +268,56 @@ class ECImporter(importer.ImporterProtocol):
                 )
 
                 self._line_index += 1
+
+            def balance_assertion(transaction, opening=False, closing=False):
+                lineno = transaction[0]
+                line = transaction[1]
+                balance = _format_number_de(line['Saldo'])
+                if opening:
+                    # calculate balance before the first transaction
+                    # Currencies must match for subtraction
+                    if line['Währung_1'] != line['Währung_2']:
+                        warnings.warn(
+                            f"{file_.name}:{lineno} "
+                            "opening balance can not be generated "
+                            "due to currency mismatch: "
+                            f"{line['Währung_1']} <> {line['Währung_2']}"
+                        )
+                        return []
+                    balance -= _format_number_de(line['Betrag'])
+                    balancedate = self._date_from
+                if closing:
+                    # balance after the last transaction:
+                    # next day's opening balance
+                    balancedate = self._date_to + timedelta(days=1)
+                return [
+                    data.Balance(
+                        data.new_metadata(file_.name, lineno),
+                        balancedate,
+                        self.account,
+                        Amount(balance, line['Währung_1']),
+                        None,
+                        None,
+                    )
+                ]
+
+            opening_transaction = closing_transaction = None
+
+            # Determine first and last (by date) transactions
+            if ascending_by_date:
+                opening_transaction = first_transaction
+                closing_transaction = last_transaction
+            if descending_by_date:
+                closing_transaction = first_transaction
+                opening_transaction = last_transaction
+
+            if opening_transaction:
+                entries.extend(
+                    balance_assertion(opening_transaction, opening=True)
+                )
+            if closing_transaction:
+                entries.extend(
+                    balance_assertion(closing_transaction, closing=True)
+                )
 
         return entries
