@@ -234,9 +234,7 @@ class ECImporterTestCase(TestCase):
 
         self.assertEqual(directives[0].date, datetime.date(2018, 6, 8))
         self.assertEqual(directives[0].payee, 'REWE Filialen Voll')
-        self.assertEqual(
-            directives[0].narration, 'Gutschrift REWE SAGT DANKE'
-        )
+        self.assertEqual(directives[0].narration, 'Gutschrift REWE SAGT DANKE')
 
         self.assertEqual(len(directives[0].postings), 1)
         self.assertEqual(
