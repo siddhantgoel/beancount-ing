@@ -273,6 +273,7 @@ class ECImporter(importer.ImporterProtocol):
                 lineno = transaction[0]
                 line = transaction[1]
                 balance = _format_number_de(line['Saldo'])
+
                 if opening:
                     # calculate balance before the first transaction
                     # Currencies must match for subtraction
@@ -286,10 +287,12 @@ class ECImporter(importer.ImporterProtocol):
                         return []
                     balance -= _format_number_de(line['Betrag'])
                     balancedate = self._date_from
+
                 if closing:
                     # balance after the last transaction:
                     # next day's opening balance
                     balancedate = self._date_to + timedelta(days=1)
+
                 return [
                     data.Balance(
                         data.new_metadata(file_.name, lineno),
@@ -304,9 +307,11 @@ class ECImporter(importer.ImporterProtocol):
             opening_transaction = closing_transaction = None
 
             # Determine first and last (by date) transactions
+
             if ascending_by_date:
                 opening_transaction = first_transaction
                 closing_transaction = last_transaction
+
             if descending_by_date:
                 closing_transaction = first_transaction
                 opening_transaction = last_transaction
@@ -315,6 +320,7 @@ class ECImporter(importer.ImporterProtocol):
                 entries.extend(
                     balance_assertion(opening_transaction, opening=True)
                 )
+
             if closing_transaction:
                 entries.extend(
                     balance_assertion(closing_transaction, closing=True)
