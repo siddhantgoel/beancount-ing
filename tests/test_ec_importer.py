@@ -198,9 +198,9 @@ class ECImporterTestCase(TestCase):
             )
 
         with open(self.filename) as fd:
-            transactions = importer.extract(fd)
+            directives = importer.extract(fd)
 
-        self.assertFalse(transactions)
+        self.assertFalse(directives)
 
     def test_extract_transactions(self):
         with open(self.filename, 'wb') as fd:
@@ -228,23 +228,23 @@ class ECImporterTestCase(TestCase):
         importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
 
         with open(self.filename) as fd:
-            transactions = importer.extract(fd)
+            directives = importer.extract(fd)
 
-        self.assertEqual(len(transactions), 1)
+        self.assertEqual(len(directives), 1)
 
-        self.assertEqual(transactions[0].date, datetime.date(2018, 6, 8))
-        self.assertEqual(transactions[0].payee, 'REWE Filialen Voll')
+        self.assertEqual(directives[0].date, datetime.date(2018, 6, 8))
+        self.assertEqual(directives[0].payee, 'REWE Filialen Voll')
         self.assertEqual(
-            transactions[0].narration, 'Gutschrift REWE SAGT DANKE'
+            directives[0].narration, 'Gutschrift REWE SAGT DANKE'
         )
 
-        self.assertEqual(len(transactions[0].postings), 1)
+        self.assertEqual(len(directives[0].postings), 1)
         self.assertEqual(
-            transactions[0].postings[0].account, 'Assets:ING-DiBa:Extra'
+            directives[0].postings[0].account, 'Assets:ING-DiBa:Extra'
         )
-        self.assertEqual(transactions[0].postings[0].units.currency, 'EUR')
+        self.assertEqual(directives[0].postings[0].units.currency, 'EUR')
         self.assertEqual(
-            transactions[0].postings[0].units.number, Decimal('-500.00')
+            directives[0].postings[0].units.number, Decimal('-500.00')
         )
 
     def test_optional_sorting_line(self):
@@ -275,10 +275,10 @@ class ECImporterTestCase(TestCase):
         importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
 
         with open(self.filename) as fd:
-            transactions = importer.extract(fd)
+            directives = importer.extract(fd)
 
         # 1 transaction + 2 balance assertions
-        self.assertEqual(len(transactions), 1 + 2)
+        self.assertEqual(len(directives), 1 + 2)
 
     def test_category_included(self):
         with open(self.filename, 'wb') as fd:
@@ -308,10 +308,10 @@ class ECImporterTestCase(TestCase):
         importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
 
         with open(self.filename) as fd:
-            transactions = importer.extract(fd)
+            directives = importer.extract(fd)
 
         # 1 transaction + 2 balance assertions
-        self.assertEqual(len(transactions), 1 + 2)
+        self.assertEqual(len(directives), 1 + 2)
 
     def test_no_second_header(self):
         with open(self.filename, 'wb') as fd:
@@ -340,10 +340,10 @@ class ECImporterTestCase(TestCase):
         importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
 
         with open(self.filename) as fd:
-            transactions = importer.extract(fd)
+            directives = importer.extract(fd)
 
         # 1 transaction + 2 balance assertions
-        self.assertEqual(len(transactions), 1 + 2)
+        self.assertEqual(len(directives), 1 + 2)
 
     def test_duplicate_waehrung_field_handled_correctly(self):
         with open(self.filename, 'wb') as fd:
@@ -372,12 +372,12 @@ class ECImporterTestCase(TestCase):
         importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
 
         with open(self.filename) as fd:
-            transactions = importer.extract(fd)
+            directives = importer.extract(fd)
 
         # 1 transaction + 1 balance assertion
         # (opening balance cannot be calculated due to currency mismatch)
-        self.assertEqual(len(transactions), 1 + 1)
-        self.assertEqual(transactions[0].postings[0].units.currency, 'EUR')
+        self.assertEqual(len(directives), 1 + 1)
+        self.assertEqual(directives[0].postings[0].units.currency, 'EUR')
 
     def test_bad_sorting_no_balances(self):
         with open(self.filename, 'wb') as fd:
@@ -406,11 +406,11 @@ class ECImporterTestCase(TestCase):
         importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
 
         with open(self.filename) as fd:
-            transactions = importer.extract(fd)
+            directives = importer.extract(fd)
 
         # 1 transaction + no balance assertion (not sorted by date)
-        self.assertEqual(len(transactions), 1)
-        self.assertFalse(isinstance(transactions[0], Balance))
+        self.assertEqual(len(directives), 1)
+        self.assertFalse(isinstance(directives[0], Balance))
 
     def test_ascending_by_date_single(self):
         with open(self.filename, 'wb') as fd:
@@ -439,24 +439,24 @@ class ECImporterTestCase(TestCase):
         importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
 
         with open(self.filename) as fd:
-            transactions = importer.extract(fd)
+            directives = importer.extract(fd)
 
         # 1 transaction + 2 balance assertions
-        self.assertEqual(len(transactions), 1 + 2)
+        self.assertEqual(len(directives), 1 + 2)
 
-        self.assertTrue(isinstance(transactions[0], Transaction))
+        self.assertTrue(isinstance(directives[0], Transaction))
 
         # Test opening balance
-        self.assertTrue(isinstance(transactions[1], Balance))
-        self.assertEqual(transactions[1].date, date(2018, 6, 1))
-        self.assertEqual(transactions[1].amount.number, 1734.0)
-        self.assertEqual(transactions[1].amount.currency, 'EUR')
+        self.assertTrue(isinstance(directives[1], Balance))
+        self.assertEqual(directives[1].date, date(2018, 6, 1))
+        self.assertEqual(directives[1].amount.number, 1734.0)
+        self.assertEqual(directives[1].amount.currency, 'EUR')
 
         # Test closing balance
-        self.assertTrue(isinstance(transactions[2], Balance))
-        self.assertEqual(transactions[2].date, date(2018, 7, 1))
-        self.assertEqual(transactions[2].amount.number, 1234.0)
-        self.assertEqual(transactions[2].amount.currency, 'EUR')
+        self.assertTrue(isinstance(directives[2], Balance))
+        self.assertEqual(directives[2].date, date(2018, 7, 1))
+        self.assertEqual(directives[2].amount.number, 1234.0)
+        self.assertEqual(directives[2].amount.currency, 'EUR')
 
     def test_ascending_by_date_multiple(self):
         with open(self.filename, 'wb') as fd:
@@ -488,18 +488,18 @@ class ECImporterTestCase(TestCase):
         importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
 
         with open(self.filename) as fd:
-            transactions = importer.extract(fd)
+            directives = importer.extract(fd)
 
-        # 4 transactions + 2 balance assertions
-        self.assertEqual(len(transactions), 4 + 2)
+        # 4 directives + 2 balance assertions
+        self.assertEqual(len(directives), 4 + 2)
         # Test opening balance
-        self.assertEqual(transactions[4].date, date(2018, 6, 1))
-        self.assertEqual(transactions[4].amount.number, 1734.0)
-        self.assertEqual(transactions[4].amount.currency, 'EUR')
+        self.assertEqual(directives[4].date, date(2018, 6, 1))
+        self.assertEqual(directives[4].amount.number, 1734.0)
+        self.assertEqual(directives[4].amount.currency, 'EUR')
         # Test closing balance
-        self.assertEqual(transactions[5].date, date(2018, 7, 1))
-        self.assertEqual(transactions[5].amount.number, 1000.0)
-        self.assertEqual(transactions[5].amount.currency, 'EUR')
+        self.assertEqual(directives[5].date, date(2018, 7, 1))
+        self.assertEqual(directives[5].amount.number, 1000.0)
+        self.assertEqual(directives[5].amount.currency, 'EUR')
 
     def test_descending_by_date_single(self):
         with open(self.filename, 'wb') as fd:
@@ -528,18 +528,18 @@ class ECImporterTestCase(TestCase):
         importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
 
         with open(self.filename) as fd:
-            transactions = importer.extract(fd)
+            directives = importer.extract(fd)
 
         # 1 transaction + 2 balance assertions
-        self.assertEqual(len(transactions), 1 + 2)
+        self.assertEqual(len(directives), 1 + 2)
         # Test opening balance
-        self.assertEqual(transactions[1].date, date(2018, 6, 1))
-        self.assertEqual(transactions[1].amount.number, 1734.0)
-        self.assertEqual(transactions[1].amount.currency, 'EUR')
+        self.assertEqual(directives[1].date, date(2018, 6, 1))
+        self.assertEqual(directives[1].amount.number, 1734.0)
+        self.assertEqual(directives[1].amount.currency, 'EUR')
         # Test closing balance
-        self.assertEqual(transactions[2].date, date(2018, 7, 1))
-        self.assertEqual(transactions[2].amount.number, 1234.0)
-        self.assertEqual(transactions[2].amount.currency, 'EUR')
+        self.assertEqual(directives[2].date, date(2018, 7, 1))
+        self.assertEqual(directives[2].amount.number, 1234.0)
+        self.assertEqual(directives[2].amount.currency, 'EUR')
 
     def test_descending_by_date_multiple(self):
         with open(self.filename, 'wb') as fd:
@@ -571,15 +571,15 @@ class ECImporterTestCase(TestCase):
         importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
 
         with open(self.filename) as fd:
-            transactions = importer.extract(fd)
+            directives = importer.extract(fd)
 
-        # 4 transactions + 2 balance assertions
-        self.assertEqual(len(transactions), 4 + 2)
+        # 4 directives + 2 balance assertions
+        self.assertEqual(len(directives), 4 + 2)
         # Test opening balance
-        self.assertEqual(transactions[4].date, date(2018, 6, 1))
-        self.assertEqual(transactions[4].amount.number, 1734.0)
-        self.assertEqual(transactions[4].amount.currency, 'EUR')
+        self.assertEqual(directives[4].date, date(2018, 6, 1))
+        self.assertEqual(directives[4].amount.number, 1734.0)
+        self.assertEqual(directives[4].amount.currency, 'EUR')
         # Test closing balance
-        self.assertEqual(transactions[5].date, date(2018, 7, 1))
-        self.assertEqual(transactions[5].amount.number, 1000.0)
-        self.assertEqual(transactions[5].amount.currency, 'EUR')
+        self.assertEqual(directives[5].date, date(2018, 7, 1))
+        self.assertEqual(directives[5].amount.number, 1000.0)
+        self.assertEqual(directives[5].amount.currency, 'EUR')
