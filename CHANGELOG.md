@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.5.0
+
+- Generate `Balance` directives for opening / closing dates (thanks [@szabootibor])
+
 ## v0.4.1
 
 - Handle duplicate "Währung" field name (thanks [@codedump] for the heads-up)
