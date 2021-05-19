@@ -6,6 +6,8 @@ from unittest import TestCase
 import os
 from datetime import date
 
+from beancount.core.data import Balance, Transaction
+
 from beancount_ing_diba.ec import BANKS, ECImporter, PRE_HEADER
 
 
@@ -408,6 +410,7 @@ class ECImporterTestCase(TestCase):
 
         # 1 transaction + no balance assertion (not sorted by date)
         self.assertEqual(len(transactions), 1)
+        self.assertFalse(isinstance(transactions[0], Balance))
 
     def test_ascending_by_date_single(self):
         with open(self.filename, 'wb') as fd:
@@ -440,11 +443,17 @@ class ECImporterTestCase(TestCase):
 
         # 1 transaction + 2 balance assertions
         self.assertEqual(len(transactions), 1 + 2)
+
+        self.assertTrue(isinstance(transactions[0], Transaction))
+
         # Test opening balance
+        self.assertTrue(isinstance(transactions[1], Balance))
         self.assertEqual(transactions[1].date, date(2018, 6, 1))
         self.assertEqual(transactions[1].amount.number, 1734.0)
         self.assertEqual(transactions[1].amount.currency, 'EUR')
+
         # Test closing balance
+        self.assertTrue(isinstance(transactions[2], Balance))
         self.assertEqual(transactions[2].date, date(2018, 7, 1))
         self.assertEqual(transactions[2].amount.number, 1234.0)
         self.assertEqual(transactions[2].amount.currency, 'EUR')
