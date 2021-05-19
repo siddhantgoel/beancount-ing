@@ -8,9 +8,12 @@ lint-flake8:
 
 lint: lint-black lint-flake8
 
+fmt-black:
+	poetry run black beancount_ing_diba/ tests/
+
 # tests
 
 test-pytest:
 	poetry run py.test tests/
 
-.PHONY: lint lint-black lint-flake8 test-pytest
+.PHONY: fmt-black lint lint-black lint-flake8 test-pytest
