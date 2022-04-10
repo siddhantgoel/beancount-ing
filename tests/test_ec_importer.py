@@ -237,9 +237,7 @@ class ECImporterTestCase(TestCase):
         self.assertEqual(directives[0].narration, 'Gutschrift REWE SAGT DANKE')
 
         self.assertEqual(len(directives[0].postings), 1)
-        self.assertEqual(
-            directives[0].postings[0].account, 'Assets:ING:Extra'
-        )
+        self.assertEqual(directives[0].postings[0].account, 'Assets:ING:Extra')
         self.assertEqual(directives[0].postings[0].units.currency, 'EUR')
         self.assertEqual(
             directives[0].postings[0].units.number, Decimal('-500.00')

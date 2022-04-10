@@ -16,4 +16,8 @@ fmt-black:
 test-pytest:
 	poetry run pytest tests/
 
-.PHONY: fmt-black lint lint-black lint-flake8 test-pytest
+test: test-pytest
+
+.PHONY: fmt-black \
+	lint lint-black lint-flake8 \
+	test test-pytest
