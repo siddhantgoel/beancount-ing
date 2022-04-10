@@ -8,7 +8,7 @@ from datetime import date
 
 from beancount.core.data import Balance, Transaction
 
-from beancount_ing_diba.ec import BANKS, ECImporter, PRE_HEADER
+from beancount_ing.ec import BANKS, ECImporter, PRE_HEADER
 
 
 HEADER = ';'.join(
