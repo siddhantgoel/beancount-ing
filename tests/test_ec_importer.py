@@ -58,7 +58,7 @@ class ECImporterTestCase(TestCase):
         return dedent(string).format(**kwargs).lstrip().encode('ISO-8859-1')
 
     def test_identify_correct(self):
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         for bank in BANKS:
             with open(self.filename, 'wb') as fd:
@@ -99,7 +99,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -111,7 +111,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(other_iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(other_iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename) as fd:
             self.assertFalse(importer.identify(fd))
@@ -128,7 +128,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -140,13 +140,13 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', other_user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', other_user)
 
         with open(self.filename) as fd:
             self.assertFalse(importer.identify(fd))
 
     def test_identify_invalid_bank(self):
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename, 'wb') as fd:
             fd.write(
@@ -174,7 +174,7 @@ class ECImporterTestCase(TestCase):
             self.assertFalse(importer.identify(fd))
 
     def test_extract_no_transactions(self):
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename, 'wb') as fd:
             fd.write(
@@ -185,7 +185,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -212,7 +212,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -225,7 +225,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename) as fd:
             directives = importer.extract(fd)
@@ -238,7 +238,7 @@ class ECImporterTestCase(TestCase):
 
         self.assertEqual(len(directives[0].postings), 1)
         self.assertEqual(
-            directives[0].postings[0].account, 'Assets:ING-DiBa:Extra'
+            directives[0].postings[0].account, 'Assets:ING:Extra'
         )
         self.assertEqual(directives[0].postings[0].units.currency, 'EUR')
         self.assertEqual(
@@ -255,7 +255,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -270,7 +270,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename) as fd:
             directives = importer.extract(fd)
@@ -288,7 +288,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -303,7 +303,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename) as fd:
             directives = importer.extract(fd)
@@ -320,7 +320,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -335,7 +335,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename) as fd:
             directives = importer.extract(fd)
@@ -352,7 +352,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -367,7 +367,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename) as fd:
             directives = importer.extract(fd)
@@ -386,7 +386,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -401,7 +401,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename) as fd:
             directives = importer.extract(fd)
@@ -419,7 +419,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -434,7 +434,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename) as fd:
             directives = importer.extract(fd)
@@ -465,7 +465,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -483,7 +483,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename) as fd:
             directives = importer.extract(fd)
@@ -508,7 +508,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -523,7 +523,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename) as fd:
             directives = importer.extract(fd)
@@ -548,7 +548,7 @@ class ECImporterTestCase(TestCase):
 
                     IBAN;{formatted_iban}
                     Kontoname;Extra-Konto
-                    Bank;ING-DiBa
+                    Bank;ING
                     Kunde;{user}
                     Zeitraum;01.06.2018 - 30.06.2018
                     Saldo;5.000,00;EUR
@@ -566,7 +566,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        importer = ECImporter(self.iban, 'Assets:ING-DiBa:Extra', self.user)
+        importer = ECImporter(self.iban, 'Assets:ING:Extra', self.user)
 
         with open(self.filename) as fd:
             directives = importer.extract(fd)

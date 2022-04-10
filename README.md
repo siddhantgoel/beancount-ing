@@ -1,4 +1,4 @@
-# Beancount ING-DiBa Importer
+# Beancount ING Importer
 
 [![image](https://github.com/siddhantgoel/beancount-ing/workflows/beancount-ing/badge.svg)](https://github.com/siddhantgoel/beancount-ing/workflows/beancount-ing/badge.svg)
 
@@ -9,7 +9,7 @@
 [![image](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 `beancount-ing` provides an Importer for converting CSV exports of
-[ING-DiBa] (Germany) account summaries to the [Beancount] format.
+[ING] (Germany) account summaries to the [Beancount] format.
 
 ## Installation
 
@@ -37,7 +37,7 @@ CONFIG = [
 
     ECImporter(
         IBAN_NUMBER,
-        'Assets:INGDiBa:EC',
+        'Assets:ING:EC',
         'Max Mustermann',
         file_encoding='ISO-8859-1',
     ),
@@ -66,6 +66,6 @@ Please make sure you have Python 3.7+ and [Poetry] installed.
 
 [Beancount]: http://furius.ca/beancount/
 [config file]: https://beancount.github.io/docs/importing_external_data.html#configuration
-[ING-DiBa]: https://www.ing.de/
+[ING]: https://www.ing.de/
 [Poetry]: https://python-poetry.org/
 [this guide]: https://beancount.github.io/docs/importing_external_data.html
