@@ -1,20 +1,20 @@
 # Beancount ING-DiBa Importer
 
-[![image](https://github.com/siddhantgoel/beancount-ing-diba/workflows/beancount-ing-diba/badge.svg)](https://github.com/siddhantgoel/beancount-ing-diba/workflows/beancount-ing-diba/badge.svg)
+[![image](https://github.com/siddhantgoel/beancount-ing/workflows/beancount-ing/badge.svg)](https://github.com/siddhantgoel/beancount-ing/workflows/beancount-ing/badge.svg)
 
-[![image](https://img.shields.io/pypi/v/beancount-ing-diba.svg)](https://pypi.python.org/pypi/beancount-ing-diba)
+[![image](https://img.shields.io/pypi/v/beancount-ing.svg)](https://pypi.python.org/pypi/beancount-ing)
 
-[![image](https://img.shields.io/pypi/pyversions/beancount-ing-diba.svg)](https://pypi.python.org/pypi/beancount-ing-diba)
+[![image](https://img.shields.io/pypi/pyversions/beancount-ing.svg)](https://pypi.python.org/pypi/beancount-ing)
 
 [![image](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-`beancount-ing-diba` provides an Importer for converting CSV exports of
+`beancount-ing` provides an Importer for converting CSV exports of
 [ING-DiBa] (Germany) account summaries to the [Beancount] format.
 
 ## Installation
 
 ```sh
-$ pip install beancount-ing-diba
+$ pip install beancount-ing
 ```
 
 In case you prefer installing from the Github repository, please note that
@@ -30,7 +30,7 @@ Adjust your [config file] to include the provided `ECImporter`. A sample
 configuration might look like the following:
 
 ```python
-from beancount_ing_diba import ECImporter
+from beancount_ing import ECImporter
 
 CONFIG = [
     # ...
@@ -59,12 +59,13 @@ Contributions are most welcome!
 
 Please make sure you have Python 3.6+ and [Poetry] installed.
 
-1. Clone the repository: `git clone https://github.com/siddhantgoel/beancount-ing-diba`
+1. Clone the repository: `git clone https://github.com/siddhantgoel/beancount-ing`
 2. Install the packages required for development: `poetry install`
-3. That's basically it. You should now be able to run the test suite: `poetry run py.test`.
+3. That's basically it. You should now be able to run the test suite: `poetry
+   run pytest tests/`.
 
 [Beancount]: http://furius.ca/beancount/
 [config file]: https://beancount.github.io/docs/importing_external_data.html#configuration
-[ING-DiBa]: https://www.ing-diba.de/
+[ING-DiBa]: https://www.ing.de/
 [Poetry]: https://python-poetry.org/
 [this guide]: https://beancount.github.io/docs/importing_external_data.html

@@ -1,4 +1,4 @@
-name: beancount-ing-diba
+name: beancount-ing
 
 on: [push, pull_request]
 
