@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.0
+
+- Rename to `beancount-ing`
+
 ## v0.5.0
 
 - Generate `Balance` directives for opening / closing dates (thanks [@szabootibor])
