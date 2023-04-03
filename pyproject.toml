@@ -33,7 +33,7 @@ python = "^3.7"
 beancount = "^2.3"
 flake8 = "^5.0"
 pytest = "^7.2"
-black = "^23.1"
+black = "^23.3"
 
 [build-system]
 requires = ["poetry-core"]
