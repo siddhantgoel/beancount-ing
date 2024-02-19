@@ -31,7 +31,7 @@ python = "^3.8"
 beancount = "^2.3"
 flake8 = "^5.0"
 pytest = "^8.0"
-black = "^24.1"
+black = "^24.2"
 
 [tool.taskipy.tasks]
 fmt = "black beancount_ing/ tests/"
