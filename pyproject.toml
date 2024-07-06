@@ -28,7 +28,7 @@ taskipy = "^1.12.0"
 python = "^3.8"
 
 [tool.poetry.dev-dependencies]
-beancount = "^2.3"
+beancount = "^3.0"
 flake8 = "^5.0"
 pytest = "^8.2"
 black = "^24.4"
