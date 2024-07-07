@@ -21,27 +21,19 @@ include = ["README.md", "LICENSE.txt"]
 repository = "https://github.com/siddhantgoel/beancount-ing"
 keywords = ["banking", "beancount", "cli-accounting", "finance"]
 
-[tool.poetry.group.dev.dependencies]
-taskipy = "^1.12.0"
-
 [tool.poetry.dependencies]
 python = "^3.8"
+beancount = "^3.0.0"
+beangulp = "^0.1.1"
 
-[tool.poetry.dev-dependencies]
-beancount = "^2.3"
-flake8 = "^5.0"
-pytest = "^8.2"
-black = "^24.4"
+[tool.poetry.group.dev.dependencies]
+taskipy = "^1.12.0"
+ruff = "^0.5.1"
+pytest = "^8.2.2"
 
 [tool.taskipy.tasks]
-fmt = "black beancount_ing/ tests/"
-
-lint-black  = "black --check beancount_ing/ tests/"
-lint-flake8 = "flake8 beancount_ing/ tests/"
-lint = "task lint-black && task lint-flake8"
-
-test-pytest = "pytest tests/"
-test = "task test-pytest"
+lint = "ruff check beancount_ing/ tests/"
+test = "pytest tests/"
 
 [build-system]
 requires = ["poetry-core"]
