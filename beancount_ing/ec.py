@@ -3,11 +3,12 @@ from datetime import datetime, timedelta
 from itertools import count
 import re
 import warnings
+from typing import Optional
 
 from beancount.core.amount import Amount
-from beancount.core import data
+from beancount.core import data, flags
 from beancount.core.number import Decimal
-from beancount.ingest import importer
+from beangulp.importer import Importer
 
 
 BANKS = ("ING", "ING-DiBa")
@@ -36,16 +37,16 @@ def _format_number_de(value: str) -> Decimal:
     return Decimal(value.replace(thousands_sep, "").replace(decimal_sep, "."))
 
 
-class ECImporter(importer.ImporterProtocol):
+class ECImporter(Importer):
     def __init__(
         self,
-        iban,
-        account,
-        user,
-        file_encoding="ISO-8859-1",
+        iban: str,
+        account_name: str,
+        user: str,
+        file_encoding: Optional[str] = "ISO-8859-1",
     ):
         self.iban = _format_iban(iban)
-        self.account = account
+        self.account_name = account_name
         self.user = user
         self.file_encoding = file_encoding
 
@@ -53,8 +54,8 @@ class ECImporter(importer.ImporterProtocol):
         self._date_to = None
         self._line_index = -1
 
-    def file_account(self, _):
-        return self.account
+    def account(self, filepath: str) -> data.Account:
+        return self.account_name
 
     def _is_valid_first_header(self, line):
         return line.startswith("Umsatzanzeige;Datei erstellt am")
@@ -62,8 +63,8 @@ class ECImporter(importer.ImporterProtocol):
     def _is_valid_second_header(self, line):
         return line == ";Letztes Update: aktuell"
 
-    def identify(self, file_):
-        with open(file_.name, encoding=self.file_encoding) as fd:
+    def identify(self, filepath: str):
+        with open(filepath, encoding=self.file_encoding) as fd:
 
             def _read_line():
                 return fd.readline().strip()
@@ -107,7 +108,7 @@ class ECImporter(importer.ImporterProtocol):
 
         return True
 
-    def extract(self, file_, existing_entries=None):
+    def extract(self, filepath: str, existing_entries: Optional[data.Entries] = None):
         entries = []
         self._line_index = 0
 
@@ -123,7 +124,7 @@ class ECImporter(importer.ImporterProtocol):
             if line:
                 raise InvalidFormatError()
 
-        with open(file_.name, encoding=self.file_encoding) as fd:
+        with open(filepath, encoding=self.file_encoding) as fd:
             # Header - first line
             line = _read_line()
 
@@ -190,7 +191,7 @@ class ECImporter(importer.ImporterProtocol):
                     ascending_by_date = True
                 else:
                     warnings.warn(
-                        f"{file_.name}:{self._line_index}: "
+                        f"{filepath}:{self._line_index}: "
                         "balance assertions can only be generated "
                         "if transactions are sorted by date"
                     )
@@ -237,7 +238,7 @@ class ECImporter(importer.ImporterProtocol):
                 amount = line["Betrag"]
                 currency = line["Währung_2"]
 
-                meta = data.new_metadata(file_.name, self._line_index)
+                meta = data.new_metadata(filepath, self._line_index)
 
                 amount = Amount(_format_number_de(amount), currency)
                 date = datetime.strptime(date, "%d.%m.%Y").date()
@@ -250,7 +251,7 @@ class ECImporter(importer.ImporterProtocol):
                     data.Transaction(
                         meta,
                         date,
-                        self.FLAG,
+                        flags.FLAG_OKAY,
                         payee,
                         description,
                         data.EMPTY_SET,
@@ -271,7 +272,7 @@ class ECImporter(importer.ImporterProtocol):
                     # Currencies must match for subtraction
                     if line["Währung_1"] != line["Währung_2"]:
                         warnings.warn(
-                            f"{file_.name}:{lineno} "
+                            f"{filepath}:{lineno} "
                             "opening balance can not be generated "
                             "due to currency mismatch: "
                             f"{line['Währung_1']} <> {line['Währung_2']}"
@@ -287,7 +288,7 @@ class ECImporter(importer.ImporterProtocol):
 
                 return [
                     data.Balance(
-                        data.new_metadata(file_.name, lineno),
+                        data.new_metadata(filepath, lineno),
                         balancedate,
                         self.account,
                         Amount(balance, line["Währung_1"]),

@@ -7,7 +7,6 @@ import os
 from datetime import date
 
 from beancount.core.data import Balance, Transaction
-
 from beancount_ing.ec import BANKS, ECImporter, PRE_HEADER
 
 
@@ -84,8 +83,7 @@ class ECImporterTestCase(TestCase):
                     )
                 )
 
-            with open(self.filename) as fd:
-                self.assertTrue(importer.identify(fd))
+            self.assertTrue(importer.identify(self.filename))
 
     def test_identify_invalid_iban(self):
         other_iban = "DE00000000000000000000"
@@ -113,8 +111,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(other_iban, "Assets:ING:Extra", self.user)
 
-        with open(self.filename) as fd:
-            self.assertFalse(importer.identify(fd))
+        self.assertFalse(importer.identify(self.filename))
 
     def test_identify_invalid_user(self):
         other_user = "Ken Adams"
@@ -142,8 +139,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(self.iban, "Assets:ING:Extra", other_user)
 
-        with open(self.filename) as fd:
-            self.assertFalse(importer.identify(fd))
+        self.assertFalse(importer.identify(self.filename))
 
     def test_identify_invalid_bank(self):
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
@@ -170,8 +166,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        with open(self.filename) as fd:
-            self.assertFalse(importer.identify(fd))
+        self.assertFalse(importer.identify(self.filename))
 
     def test_extract_no_transactions(self):
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
@@ -197,8 +192,7 @@ class ECImporterTestCase(TestCase):
                 )
             )
 
-        with open(self.filename) as fd:
-            directives = importer.extract(fd)
+        directives = importer.extract(self.filename)
 
         self.assertFalse(directives)
 
@@ -227,8 +221,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
 
-        with open(self.filename) as fd:
-            directives = importer.extract(fd)
+        directives = importer.extract(self.filename)
 
         self.assertEqual(len(directives), 1)
 
@@ -237,7 +230,9 @@ class ECImporterTestCase(TestCase):
         self.assertEqual(directives[0].narration, "Gutschrift REWE SAGT DANKE")
 
         self.assertEqual(len(directives[0].postings), 1)
-        self.assertEqual(directives[0].postings[0].account, "Assets:ING:Extra")
+        self.assertEqual(
+            directives[0].postings[0].account(self.filename), "Assets:ING:Extra"
+        )
         self.assertEqual(directives[0].postings[0].units.currency, "EUR")
         self.assertEqual(directives[0].postings[0].units.number, Decimal("-500.00"))
 
@@ -268,8 +263,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
 
-        with open(self.filename) as fd:
-            directives = importer.extract(fd)
+        directives = importer.extract(self.filename)
 
         # 1 transaction + 2 balance assertions
         self.assertEqual(len(directives), 1 + 2)
@@ -301,8 +295,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
 
-        with open(self.filename) as fd:
-            directives = importer.extract(fd)
+        directives = importer.extract(self.filename)
 
         # 1 transaction + 2 balance assertions
         self.assertEqual(len(directives), 1 + 2)
@@ -333,8 +326,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
 
-        with open(self.filename) as fd:
-            directives = importer.extract(fd)
+        directives = importer.extract(self.filename)
 
         # 1 transaction + 2 balance assertions
         self.assertEqual(len(directives), 1 + 2)
@@ -365,8 +357,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
 
-        with open(self.filename) as fd:
-            directives = importer.extract(fd)
+        directives = importer.extract(self.filename)
 
         # 1 transaction + 1 balance assertion
         # (opening balance cannot be calculated due to currency mismatch)
@@ -399,8 +390,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
 
-        with open(self.filename) as fd:
-            directives = importer.extract(fd)
+        directives = importer.extract(self.filename)
 
         # 1 transaction + no balance assertion (not sorted by date)
         self.assertEqual(len(directives), 1)
@@ -432,8 +422,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
 
-        with open(self.filename) as fd:
-            directives = importer.extract(fd)
+        directives = importer.extract(self.filename)
 
         # 1 transaction + 2 balance assertions
         self.assertEqual(len(directives), 1 + 2)
@@ -481,8 +470,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
 
-        with open(self.filename) as fd:
-            directives = importer.extract(fd)
+        directives = importer.extract(self.filename)
 
         # 4 directives + 2 balance assertions
         self.assertEqual(len(directives), 4 + 2)
@@ -521,8 +509,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
 
-        with open(self.filename) as fd:
-            directives = importer.extract(fd)
+        directives = importer.extract(self.filename)
 
         # 1 transaction + 2 balance assertions
         self.assertEqual(len(directives), 1 + 2)
@@ -564,8 +551,7 @@ class ECImporterTestCase(TestCase):
 
         importer = ECImporter(self.iban, "Assets:ING:Extra", self.user)
 
-        with open(self.filename) as fd:
-            directives = importer.extract(fd)
+        directives = importer.extract(self.filename)
 
         # 4 directives + 2 balance assertions
         self.assertEqual(len(directives), 4 + 2)
