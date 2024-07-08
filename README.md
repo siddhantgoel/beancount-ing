@@ -26,8 +26,33 @@ from.
 If you're not familiar with how to import external data into Beancount, please
 read [this guide] first.
 
-Adjust your [config file] to include the provided `ECImporter`. A sample
-configuration might look like the following:
+### Beancount 3.x
+
+Beancount 3.x has replaced the `config.py` file based workflow in favor of having a
+script based workflow, as per the [changes documented here]. As a result, the importer's
+initialization parameters have been shifted to `pyproject.toml`.
+
+Add the following to your `pyproject.toml` in your project root.
+
+```toml
+[tool.beancount-ing.ec]
+iban = "DE99 9999 9999 9999 9999 99"
+account_name = "Assets:ING:EC"
+user = "Erika Mustermann"
+file_encoding = "ISO-8859-1"  # optional
+```
+
+Run `beancount-ing-ec` to call the EC importer. The `identify` and `extract` subcommands
+would identify the file and extract transactions for you.
+
+```sh
+$ beancount-ing-ec extract transaction.csv >> you.beancount
+```
+
+### Beancount 2.x
+
+Adjust your [config file] to include the provided `ECImporter`. A sample configuration
+might look like the following:
 
 ```python
 from beancount_ing import ECImporter
@@ -37,9 +62,9 @@ CONFIG = [
 
     ECImporter(
         IBAN_NUMBER,
-        'Assets:ING:EC',
-        'Max Mustermann',
-        file_encoding='ISO-8859-1',
+        "Assets:ING:EC",
+        "Erika Mustermann",
+        file_encoding="ISO-8859-1",
     ),
 
     # ...
@@ -65,7 +90,8 @@ Please make sure you have Python 3.8+ and [Poetry] installed.
    run pytest tests/`.
 
 [Beancount]: http://furius.ca/beancount/
-[config file]: https://beancount.github.io/docs/importing_external_data.html#configuration
 [ING]: https://www.ing.de/
 [Poetry]: https://python-poetry.org/
+[changes documented here]: https://docs.google.com/document/d/1O42HgYQBQEna6YpobTqszSgTGnbRX7RdjmzR2xumfjs/edit#heading=h.hjzt0c6v8pfs
+[config file]: https://beancount.github.io/docs/importing_external_data.html#configuration
 [this guide]: https://beancount.github.io/docs/importing_external_data.html
