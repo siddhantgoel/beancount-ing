@@ -245,7 +245,9 @@ class ECImporter(Importer):
 
                 description = "{} {}".format(booking_text, description).strip()
 
-                postings = [data.Posting(self.account, amount, None, None, None, None)]
+                postings = [
+                    data.Posting(self.account(filepath), amount, None, None, None, None)
+                ]
 
                 entries.append(
                     data.Transaction(
@@ -290,7 +292,7 @@ class ECImporter(Importer):
                     data.Balance(
                         data.new_metadata(filepath, lineno),
                         balancedate,
-                        self.account,
+                        self.account(filepath),
                         Amount(balance, line["Währung_1"]),
                         None,
                         None,
