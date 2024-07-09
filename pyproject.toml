@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "beancount-ing"
-version = "0.6.0"
+version = "1.0.0"
 description = "Beancount Importer for ING (DE) CSV exports"
 readme = "README.md"
 authors = ["Siddhant Goel <me@sgoel.dev>"]
