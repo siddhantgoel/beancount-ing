@@ -7,7 +7,7 @@ from beancount_ing import ECImporter
 
 
 def ec():
-    config = _extract_config()
+    config = _extract_config("ec")
 
     iban = config["iban"]
     account_name = config["account_name"]
@@ -23,7 +23,7 @@ def ec():
     bg_main(importer)
 
 
-def _extract_config():
+def _extract_config(section: str):
     pyproject = Path("pyproject.toml")
 
     if not pyproject.exists():
@@ -33,10 +33,10 @@ def _extract_config():
     with pyproject.open("rb") as fd:
         config = tomllib.load(fd)
 
-    config_ing = config.get("tool", {}).get("beancount-ing")
+    config_section = config.get("tool", {}).get("beancount-ing", {}).get(section)
 
-    if not config_ing:
-        print("tool.beancount-ing not found in pyproject.toml.")
+    if not config_section:
+        print(f"tool.beancount-ing.{section} not found in pyproject.toml.")
         sys.exit(1)
 
-    return config_ing
+    return config_section
