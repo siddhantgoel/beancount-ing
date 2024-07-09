@@ -21,6 +21,9 @@ In case you prefer installing from the Github repository, please note that
 `main` is the development branch so `stable` is what you should be installing
 from.
 
+Note that v1.x will *only* work with Beancount 3.x, while v0.x will *only* work with
+Beancount 2.x, due to incompatibilities between Beancount 3.x and 2.x.
+
 ## Usage
 
 If you're not familiar with how to import external data into Beancount, please
