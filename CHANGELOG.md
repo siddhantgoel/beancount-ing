@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.0.0
+
+- Add Beancount 3.x support (thus removing Beancount 2.x support)
+- Add `beancount-ing-ec` CLI command
+- Rename `account` parameter to `account_name` (overlapping with the `account()` method
+  definition required by `beangulp.importer.Importer`)
+- Add Python 3.11 and 3.12 support
+- Drop Python 3.7 support
+
 ## v0.6.0
 
 - Rename to `beancount-ing`
