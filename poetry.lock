@@ -47,13 +47,13 @@ regex = ">=2022.9.13"
 
 [[package]]
 name = "beangulp"
-version = "0.1.1"
+version = "0.2.0"
 description = "Importers Framework for Beancount"
 optional = false
 python-versions = "*"
 files = [
-    {file = "beangulp-0.1.1-py3-none-any.whl", hash = "sha256:bcecbe62e509ea1d447ecde2cf5f612cad94d3eed9e254233de1a352c9bf83fe"},
-    {file = "beangulp-0.1.1.tar.gz", hash = "sha256:1fd131c76e5fda8c056efcc2f8a0d2bf5cd8141ef29060762601358f80f4a9b5"},
+    {file = "beangulp-0.2.0-py3-none-any.whl", hash = "sha256:3177f57e433ae0b75352d052e7e20892791e6eab0d95cf07ca458b35b39788fe"},
+    {file = "beangulp-0.2.0.tar.gz", hash = "sha256:5c908c45c62c07c4efadd0b03d3cdd145ad3b5e2bab5f5f277e0093a5891241a"},
 ]
 
 [package.dependencies]
@@ -582,4 +582,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "fa0deb196f323b03d4f453c46eab5d6707229a1bb080757207f51e5502df9950"
+content-hash = "adeabcfc3c42af4bd2515996dfa2182426a2aee41fe4494c4cf7bb35a8a017f3"
