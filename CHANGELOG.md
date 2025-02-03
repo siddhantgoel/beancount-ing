@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.0.1
+
+- Remove support for Python 3.8
+
 ## v1.0.0
 
 - Add Beancount 3.x support (thus removing Beancount 2.x support)
