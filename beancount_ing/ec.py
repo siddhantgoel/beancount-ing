@@ -108,7 +108,7 @@ class ECImporter(Importer):
 
         return True
 
-    def extract(self, filepath: str, existing_entries: Optional[data.Entries] = None):
+    def extract(self, filepath: str, existing: data.Entries = None):
         entries = []
         self._line_index = 0
 
@@ -206,8 +206,9 @@ class ECImporter(Importer):
             _read_empty_line()
 
             # Data entries
+            lines = [line.strip() for line in fd.readlines()]
             reader = csv.reader(
-                fd, delimiter=";", quoting=csv.QUOTE_MINIMAL, quotechar='"'
+                lines, delimiter=";", quoting=csv.QUOTE_MINIMAL, quotechar='"'
             )
 
             def remap(names):
@@ -224,7 +225,7 @@ class ECImporter(Importer):
             # memoize first and last transactions for balance assertion
             first_transaction = last_transaction = None
 
-            for row in reader:
+            for index, row in enumerate(reader):
                 line = dict(zip(field_names, row))
 
                 # Mark first and last transaction together with line numbers
@@ -239,6 +240,7 @@ class ECImporter(Importer):
                 currency = line["Währung_2"]
 
                 meta = data.new_metadata(filepath, self._line_index)
+                meta["__source__"] = lines[index]
 
                 amount = Amount(_format_number_de(amount), currency)
                 date = datetime.strptime(date, "%d.%m.%Y").date()
