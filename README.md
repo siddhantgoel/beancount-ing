@@ -21,9 +21,6 @@ In case you prefer installing from the Github repository, please note that
 `main` is the development branch so `stable` is what you should be installing
 from.
 
-Note that v1.x will *only* work with Beancount 3.x, while v0.x will *only* work with
-Beancount 2.x, due to incompatibilities between Beancount 3.x and 2.x.
-
 ## Usage
 
 If you're not familiar with how to import external data into Beancount, please
@@ -32,25 +29,32 @@ read [this guide] first.
 ### Beancount 3.x
 
 Beancount 3.x has replaced the `config.py` file based workflow in favor of having a
-script based workflow, as per the [changes documented here]. As a result, the importer's
-initialization parameters have been shifted to `pyproject.toml`.
+script based workflow, as per the [changes documented here]. The `beangulp` examples
+suggest using a Python script based on `beangulp.Ingest`. Here's an example of how that
+might work:
 
-Add the following to your `pyproject.toml` in your project root.
 
-```toml
-[tool.beancount-ing.ec]
-iban = "DE99 9999 9999 9999 9999 99"
-account_name = "Assets:ING:EC"
-user = "Erika Mustermann"
-file_encoding = "ISO-8859-1"  # optional
+Add an `import.py` script in your project root with the following contents:
+
+```python
+from beancount_ing import ECImporter
+from beangulp import Ingest
+
+importers = (
+    ECImporter(
+        IBAN_NUMBER,
+        "Assets:ING:EC",
+        "Erika Mustermann",
+        file_encoding="ISO-8859-1",
+    ),
+)
+
+if __name__ == "__main__":
+    ingest = Ingest(importer)
+    ingest()
 ```
 
-Run `beancount-ing-ec` to call the EC importer. The `identify` and `extract` subcommands
-would identify the file and extract transactions for you.
-
-```sh
-$ beancount-ing-ec extract transaction.csv >> you.beancount
-```
+... and run it directly using `python import.py extract`.
 
 ### Beancount 2.x
 

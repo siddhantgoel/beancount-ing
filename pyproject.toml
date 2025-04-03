@@ -32,9 +32,6 @@ taskipy = "^1.12.0"
 ruff = ">=0.5.1,<0.12.0"
 pytest = "^8.2.2"
 
-[tool.poetry.scripts]
-beancount-ing-ec = "beancount_ing.cli:ec"
-
 [tool.taskipy.tasks]
 lint = "ruff check beancount_ing/ tests/"
 test = "pytest tests/"
