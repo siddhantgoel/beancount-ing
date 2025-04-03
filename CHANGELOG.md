@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.1.0
+
+- Add `__source__` attribute for Fava (thanks [@sarg])
+- Remove `beancount-ing-ec` CLI in favor of a `beangulp.Ingest` based workflow
+  - Beangulp examples suggest using a Python script that instantiates `Beangulp.Ingest`
+    with a list of importers, which makes the CLI script redundant.
+- Relax Beancount version constraint
+
 ## v1.0.1
 
 - Remove support for Python 3.8
@@ -64,3 +72,4 @@
 
 [@codedump]: https://github.com/codedump
 [@szabootibor]: https://github.com/szabootibor
+[@sarg]: https://github.com/sarg
