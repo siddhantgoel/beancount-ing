@@ -89,7 +89,7 @@ $ bean-extract /path/to/config.py transaction.csv >> you.beancount
 
 Contributions are most welcome!
 
-Please make sure you have Python 3.9+ and [Poetry] installed.
+Please make sure you have Python 3.10+ and [Poetry] installed.
 
 1. Clone the repository: `git clone https://github.com/siddhantgoel/beancount-ing`
 2. Install the packages required for development: `poetry install`
