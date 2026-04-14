@@ -100,5 +100,5 @@ Please make sure you have Python 3.10+ and [Poetry] installed.
 [ING]: https://www.ing.de/
 [Poetry]: https://python-poetry.org/
 [changes documented here]: https://docs.google.com/document/d/1O42HgYQBQEna6YpobTqszSgTGnbRX7RdjmzR2xumfjs/edit#heading=h.hjzt0c6v8pfs
-[config file]: https://beancount.github.io/docs/importing_external_data.html#configuration
-[this guide]: https://beancount.github.io/docs/importing_external_data.html
+[config file]: https://beancount.github.io/docs/importing_external_data/#configuration
+[this guide]: https://beancount.github.io/docs/importing_external_data/
