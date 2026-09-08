@@ -1,17 +1,17 @@
 import datetime
+import os
+from datetime import date
 from decimal import Decimal
 from tempfile import gettempdir
 from textwrap import dedent
 from unittest import TestCase
-import os
-from datetime import date
 
 from beancount.core.data import Balance, Transaction
-from beancount_ing.ec import BANKS, ECImporter, PRE_HEADER
 
+from beancount_ing.ec import BANKS, PRE_HEADER, ECImporter
 
 HEADER = ";".join(
-    '"{}"'.format(field)
+    f'"{field}"'
     for field in (
         "Buchung",
         "Valuta",
@@ -37,7 +37,7 @@ class ECImporterTestCase(TestCase):
         self.iban = "DE99999999999999999999"
         self.formatted_iban = "DE99 9999 9999 9999 9999 99"
         self.user = "Max Mustermann"
-        self.filename = path_for_temp_file("{}.csv".format(self.iban))
+        self.filename = path_for_temp_file(f"{self.iban}.csv")
 
     def tearDown(self):
         if os.path.isfile(self.filename):
@@ -78,7 +78,7 @@ class ECImporterTestCase(TestCase):
 
                         {header}
                         08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;REWE SAGT DANKE;1.234,00;EUR;500,00;EUR
-                        """,  # NOQA
+                        """,
                         bank=bank,
                     )
                 )
@@ -105,7 +105,7 @@ class ECImporterTestCase(TestCase):
                     {pre_header}
 
                     {header}
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -133,7 +133,7 @@ class ECImporterTestCase(TestCase):
                     {pre_header}
 
                     {header}
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -162,7 +162,7 @@ class ECImporterTestCase(TestCase):
 
                     {header}
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;REWE SAGT DANKE;1.234,00;EUR;500,00;EUR
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -188,7 +188,7 @@ class ECImporterTestCase(TestCase):
                     {pre_header}
 
                     {header}
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -215,7 +215,7 @@ class ECImporterTestCase(TestCase):
 
                     {header}
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -255,7 +255,7 @@ class ECImporterTestCase(TestCase):
 
                     {header}
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -287,7 +287,7 @@ class ECImporterTestCase(TestCase):
 
                     "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -318,7 +318,7 @@ class ECImporterTestCase(TestCase):
 
                     "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -349,7 +349,7 @@ class ECImporterTestCase(TestCase):
 
                     "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;USD;-500,00;EUR
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -382,7 +382,7 @@ class ECImporterTestCase(TestCase):
 
                     "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;USD;-500,00;EUR
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -414,7 +414,7 @@ class ECImporterTestCase(TestCase):
 
                     "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -462,7 +462,7 @@ class ECImporterTestCase(TestCase):
                     08.06.2018;08.06.2018;LIDL;Lastschrift;Kategorie;LIDL SAGT DANKE;1.200,00;EUR;-34,00;EUR
                     15.06.2018;08.06.2018;LIDL;Lastschrift;Kategorie;LIDL SAGT DANKE;1.100,00;EUR;-100,00;EUR
                     15.06.2018;08.06.2018;LIDL;Lastschrift;Kategorie;LIDL SAGT DANKE;1.000,00;EUR;-100,00;EUR
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -501,7 +501,7 @@ class ECImporterTestCase(TestCase):
 
                     "Buchung";"Valuta";"Auftraggeber/Empfänger";"Buchungstext";"Kategorie";"Verwendungszweck";"Saldo";"Währung";"Betrag";"Währung"
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
-                    """  # NOQA
+                    """
                 )
             )
 
@@ -543,7 +543,7 @@ class ECImporterTestCase(TestCase):
                     15.06.2018;08.06.2018;LIDL;Lastschrift;Kategorie;LIDL SAGT DANKE;1.100,00;EUR;-100,00;EUR
                     08.06.2018;08.06.2018;LIDL;Lastschrift;Kategorie;LIDL SAGT DANKE;1.200,00;EUR;-34,00;EUR
                     08.06.2018;08.06.2018;REWE Filialen Voll;Gutschrift;Kategorie;REWE SAGT DANKE;1.234,00;EUR;-500,00;EUR
-                    """  # NOQA
+                    """
                 )
             )
 

@@ -1,15 +1,14 @@
 import csv
-from datetime import datetime, timedelta
-from itertools import count
 import re
 import warnings
-from typing import Optional
+from datetime import datetime, timedelta
+from itertools import count
+from zoneinfo import ZoneInfo
 
-from beancount.core.amount import Amount
 from beancount.core import data, flags
+from beancount.core.amount import Amount
 from beancount.core.number import Decimal
 from beangulp.importer import Importer
-
 
 BANKS = ("ING", "ING-DiBa")
 
@@ -43,7 +42,7 @@ class ECImporter(Importer):
         iban: str,
         account_name: str,
         user: str,
-        file_encoding: Optional[str] = "ISO-8859-1",
+        file_encoding: str | None = "ISO-8859-1",
     ):
         self.iban = _format_iban(iban)
         self.account_name = account_name
@@ -167,8 +166,16 @@ class ECImporter(Importer):
                     if len(splits) != 2:
                         raise InvalidFormatError()
 
-                    self._date_from = datetime.strptime(splits[0], "%d.%m.%Y").date()
-                    self._date_to = datetime.strptime(splits[1], "%d.%m.%Y").date()
+                    self._date_from = (
+                        datetime.strptime(splits[0], "%d.%m.%Y")
+                        .astimezone(ZoneInfo("Europe/Berlin"))
+                        .date()
+                    )
+                    self._date_to = (
+                        datetime.strptime(splits[1], "%d.%m.%Y")
+                        .astimezone(ZoneInfo("Europe/Berlin"))
+                        .date()
+                    )
                 elif key == "Saldo":
                     # actually this is not a useful balance, because it is
                     # valid on the date of generating the CSV (see first header
@@ -206,7 +213,7 @@ class ECImporter(Importer):
             _read_empty_line()
 
             # Data entries
-            lines = [line.strip() for line in fd.readlines()]
+            lines = [line.strip() for line in fd]
             reader = csv.reader(
                 lines, delimiter=";", quoting=csv.QUOTE_MINIMAL, quotechar='"'
             )
@@ -216,7 +223,7 @@ class ECImporter(Importer):
                 counter = count(1)
 
                 return [
-                    "Währung_{}".format(next(counter)) if name == "Währung" else name
+                    f"Währung_{next(counter)}" if name == "Währung" else name
                     for name in names
                 ]
 
@@ -243,9 +250,13 @@ class ECImporter(Importer):
                 meta["__source__"] = lines[index]
 
                 amount = Amount(_format_number_de(amount), currency)
-                date = datetime.strptime(date, "%d.%m.%Y").date()
+                date = (
+                    datetime.strptime(date, "%d.%m.%Y")
+                    .astimezone(ZoneInfo("Europe/Berlin"))
+                    .date()
+                )
 
-                description = "{} {}".format(booking_text, description).strip()
+                description = f"{booking_text} {description}".strip()
 
                 postings = [
                     data.Posting(self.account(filepath), amount, None, None, None, None)
